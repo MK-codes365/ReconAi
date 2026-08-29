@@ -90,7 +90,7 @@ Every decision logged end-to-end — from detection to recovery or escalation.
 
 ## 🏗️ Architecture
 
-```
+```text
                     NEXT.JS DASHBOARD
                            │
                            ▼
@@ -112,12 +112,67 @@ Every decision logged end-to-end — from detection to recovery or escalation.
 
 ## 🔄 Recovery Workflow
 
-```
+```text
 PAYMENT EVENT → Detect Risk → Build Journey → Diagnose Root Cause
       → Generate Interventions → Compare Outcomes
       → Select Best Recovery Moment (Action + Time + Channel)
       → Policy Check → Execute → Verify Outcome
       → RECOVERED / STOPPED / ESCALATED
+```
+
+---
+
+## 🤖 Real LLM Reasoning & Recovery Diagnosis Engine
+
+ReconAI features a dedicated LLM reasoning layer that analyzes structured recovery context, identifies root causes, interprets customer behavior, flags operational risks, and generates candidate recovery strategies.
+
+### Strict Architectural Boundaries
+- **ML Engine**: Answers *"How likely is recovery?"* ($P(\text{recovery}) \in [0.0, 1.0]$).
+- **LLM Engine**: Answers *"Why is revenue at risk, what behavioral signals matter, and what candidate strategies should be evaluated?"*
+- **Deterministic Decision & Policy Engines**: Evaluate economics and enforce safety rules before execution.
+- **NO DIRECT MONEY-MOVING TOOL CALLS**: The LLM NEVER directly calls Razorpay or triggers financial actions.
+
+### Provider Abstraction Architecture
+
+```text
+LLMProvider (Interface)
+   ├── OpenAIProvider (OpenAI gpt-4o-mini with response_format: json_object)
+   └── MockLLMProvider (Deterministic Mock LLM Provider for unit/integration testing)
+```
+
+### Zod Structured Analysis Output Schema
+The LLM response is strictly validated using Zod (`RecoveryAnalysisSchema`):
+```json
+{
+  "diagnosis": {
+    "category": "TEMPORARY_FAILURE",
+    "summary": "Transient banking gateway timeout during authorization",
+    "confidence": 0.88
+  },
+  "signals": [
+    {
+      "signal": "Gateway error description: temporary_gateway_issue",
+      "importance": "HIGH",
+      "evidenceRef": "payment_history:attempts:1"
+    }
+  ],
+  "customer_behavior_summary": "Customer has 180 days tenure with strong payment history.",
+  "risk_flags": [
+    "High-value transaction exceeding ₹25,000 threshold"
+  ],
+  "candidate_interventions": [
+    {
+      "action": "RETRY_LATER",
+      "reason": "Retry during peak evening banking hours (8 PM)",
+      "expected_benefit": "Higher gateway conversion",
+      "potential_friction": "LOW"
+    }
+  ],
+  "recommended_strategy": {
+    "strategy": "WAIT_AND_RETRY",
+    "reason": "Schedule automated retry at 8 PM."
+  }
+}
 ```
 
 ---
@@ -155,6 +210,23 @@ PAYMENT EVENT → Detect Risk → Build Journey → Diagnose Root Cause
 | **Command Center** | Revenue metrics, active cases, cases needing review |
 | **Recovery Case Detail** | Customer journey, root cause, intervention comparison, AI decision |
 | **Audit & Results** | Batch summary, audit timeline, policy analytics |
+
+---
+
+## 🚦 Roadmap Status
+
+- ✅ **Phase 1** — Production Foundation & Service Health Checks
+- ✅ **Phase 2** — Production Database, Data Layer & Schema Migration
+- ✅ **Phase 3** — Real-Time Razorpay Integration & Webhook Event Pipeline
+- ✅ **Phase 4** — Real-Time Revenue Recovery Engine & Customer Journey Builder
+- ✅ **Phase 5** — Real Machine Learning Recovery Prediction Engine
+- ✅ **Phase 6** — Real LLM Reasoning & Recovery Diagnosis Engine
+- ⏳ **Phase 7** — Next Best Recovery Moment & Intervention Simulator
+- ⏳ **Phase 8** — Deterministic Policy Engine & Attention Budget
+- ⏳ **Phase 9** — Recovery Execution via Razorpay Test Mode
+- ⏳ **Phase 10** — Real-Time WebSocket Dashboard
+- ⏳ **Phase 11** — Batch Evaluation & Production Hardening
+- ⏳ **Phase 12** — Final Verification
 
 ---
 

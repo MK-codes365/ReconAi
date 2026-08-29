@@ -1,0 +1,681 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum UserRole {
+  ADMIN
+  FINANCE_MANAGER
+  OPERATOR
+  AUDITOR
+}
+
+enum PaymentStatus {
+  CREATED
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  CANCELLED
+  PENDING
+}
+
+enum CaseType {
+  FAILED_PAYMENT
+  CHECKOUT_ABANDONMENT
+  PAYMENT_LINK_EXPIRED
+  OVERDUE_PAYMENT
+  SUBSCRIPTION_FAILURE
+}
+
+enum CaseStatus {
+  OPEN
+  ANALYZING
+  ACTION_SCHEDULED
+  ACTION_EXECUTING
+  RECOVERED
+  FAILED
+  ESCALATED
+  STOPPED
+  CLOSED
+}
+
+enum ActionStatus {
+  PENDING
+  SCHEDULED
+  APPROVED
+  BLOCKED
+  EXECUTING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+}
+
+enum OutcomeType {
+  PAYMENT_RECOVERED
+  PARTIAL_RECOVERY
+  NO_RECOVERY
+  CUSTOMER_DECLINED
+  EXPIRED
+  ESCALATED
+  STOPPED
+}
+
+enum WebhookProcessingStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
+  FAILED
+  IGNORED
+}
+
+enum PolicyDecisionResult {
+  APPROVED
+  BLOCKED
+  REQUIRES_APPROVAL
+  SCHEDULED
+}
+
+enum ActorType {
+  SYSTEM
+  AI
+  ML
+  USER
+  WEBHOOK
+  WORKER
+}
+
+enum WorkflowJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  DEAD_LETTER
+  CANCELLED
+}
+
+enum NotificationChannel {
+  SMS
+  EMAIL
+  WHATSAPP
+  PAYMENT_LINK
+  IN_APP
+}
+
+enum ModelStatus {
+  TRAINING
+  VALIDATION
+  ACTIVE
+  RETIRED
+}
+
+enum DatasetType {
+  TRAINING
+  VALIDATION
+  TEST
+  SIMULATION
+  LIVE_TEST_MODE
+}
+
+enum AttributionType {
+  ORGANIC
+  RECONAI_RECOVERED
+  MANUAL
+  UNKNOWN
+}
+
+// ==========================================
+// 1. IDENTITY
+// ==========================================
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(OPERATOR)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  policyDecisions PolicyDecision[] @relation("EvaluatedByUser")
+  approvedActions RecoveryAction[] @relation("ApprovedByUser")
+}
+
+// ==========================================
+// 2. CUSTOMERS
+// ==========================================
+
+model Customer {
+  id                     String   @id @default(uuid())
+  externalId             String   @unique
+  name                   String
+  email                  String
+  phone                  String?
+  preferredPaymentMethod String? // upi, card, netbanking, wallet
+  timezone               String   @default("Asia/Kolkata")
+  status                 String   @default("ACTIVE")
+  communicationOptOut    Boolean  @default(false)
+  tenureDays             Int      @default(30)
+  metadata               Json?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  orders          Order[]
+  payments        Payment[]
+  recoveryCases   RecoveryCase[]
+  attentionBudget CustomerAttentionBudget?
+  notifications   Notification[]
+
+  @@index([externalId])
+  @@index([email])
+}
+
+// ==========================================
+// 3. COMMERCE (ORDERS)
+// ==========================================
+
+model Order {
+  id              String   @id @default(uuid())
+  merchantOrderId String   @unique
+  customerId      String
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  amountMinorUnit BigInt // Minor units (e.g. Paise for INR: 500000 = ₹5000.00)
+  currency        String   @default("INR")
+  status          String   @default("CREATED")
+  provider        String   @default("razorpay")
+  providerOrderId String?  @unique
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  payments      Payment[]
+  recoveryCases RecoveryCase[]
+
+  @@index([providerOrderId])
+}
+
+// ==========================================
+// 4. PAYMENTS & ATTEMPTS
+// ==========================================
+
+model Payment {
+  id                String        @id @default(uuid())
+  providerPaymentId String?       @unique
+  providerOrderId   String?
+  customerId        String
+  customer          Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orderId           String
+  order             Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amountMinorUnit   BigInt // Minor units (Paise)
+  currency          String        @default("INR")
+  status            PaymentStatus @default(CREATED)
+  paymentMethod     String? // upi, card, netbanking, wallet
+  failureReason     String?
+  failureCode       String?
+  capturedAt        DateTime?
+  providerMetadata  Json?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  attempts     PaymentAttempt[]
+  recoveryCase RecoveryCase?
+
+  @@index([providerPaymentId])
+  @@index([status])
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model PaymentAttempt {
+  id              String        @id @default(uuid())
+  paymentId       String
+  payment         Payment       @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  attemptNumber   Int
+  status          PaymentStatus
+  failureReason   String?
+  failureCode     String?
+  paymentMethod   String?
+  amountMinorUnit BigInt
+  gateway         String        @default("razorpay")
+  attemptedAt     DateTime      @default(now())
+
+  @@unique([paymentId, attemptNumber])
+  @@index([paymentId])
+  @@index([status])
+}
+
+// ==========================================
+// 5. WEBHOOK EVENTS (IDEMPOTENCY)
+// ==========================================
+
+model WebhookEvent {
+  id                String                  @id @default(uuid())
+  provider          String                  @default("razorpay")
+  eventId           String
+  eventType         String
+  signatureVerified Boolean                 @default(false)
+  payload           Json
+  processingStatus  WebhookProcessingStatus @default(RECEIVED)
+  receivedAt        DateTime                @default(now())
+  processedAt       DateTime?
+  errorMessage      String?
+  retryCount        Int                     @default(0)
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+
+  @@unique([provider, eventId])
+  @@index([provider])
+  @@index([eventType])
+  @@index([processingStatus])
+  @@index([receivedAt])
+}
+
+// ==========================================
+// 6. RECOVERY CASES & INTERVENTIONS
+// ==========================================
+
+model RecoveryCase {
+  id                             String          @id @default(uuid())
+  caseNumber                     String          @unique // e.g. REC-2026-0001
+  customerId                     String
+  customer                       Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  paymentId                      String?         @unique
+  payment                        Payment?        @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+  orderId                        String?
+  order                          Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+  caseType                       CaseType        @default(FAILED_PAYMENT)
+  status                         CaseStatus      @default(OPEN)
+  priority                       Int             @default(1)
+  priorityScore                  Float           @default(1.0)
+  amountAtRiskMinorUnit          BigInt
+  recoveredAmountMinorUnit       BigInt          @default(0)
+  remainingAmountAtRiskMinorUnit BigInt          @default(0)
+  attribution                    AttributionType @default(UNKNOWN)
+  recoveryProbability            Float?
+  currentStage                   String          @default("INITIAL_ANALYSIS")
+  openedAt                       DateTime        @default(now())
+  closedAt                       DateTime?
+  expiresAt                      DateTime?
+  lastActionAt                   DateTime?
+  nextActionAt                   DateTime?
+  reason                         String?
+  metadata                       Json?
+  createdAt                      DateTime        @default(now())
+  updatedAt                      DateTime        @updatedAt
+
+  candidates      RecoveryCandidate[]
+  actions         RecoveryAction[]
+  outcomes        RecoveryOutcome[]
+  aiPredictions   AIPrediction[]
+  mlPredictions   MLPrediction[]
+  policyDecisions PolicyDecision[]
+  workflowJobs    WorkflowJob[]
+  notifications   Notification[]
+  decisions       RecoveryDecision[]
+
+  @@index([status])
+  @@index([customerId])
+  @@index([paymentId])
+  @@index([nextActionAt])
+  @@index([expiresAt])
+  @@index([createdAt])
+}
+
+model RecoveryCandidate {
+  id                              String       @id @default(uuid())
+  recoveryCaseId                  String
+  recoveryCase                    RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  actionType                      String // RETRY_NOW, RETRY_SCHEDULED, SEND_PAYMENT_LINK, SEND_UPI_COLLECT, WAIT
+  channel                         String // SMS, EMAIL, WHATSAPP, SYSTEM
+  paymentMethod                   String? // upi, card, netbanking
+  scheduledTime                   DateTime
+  recoveryProbability             Float
+  expectedRecoveryAmountMinorUnit BigInt
+  frictionScore                   Float
+  riskScore                       Float
+  netRecoveryValueMinorUnit       BigInt
+  reason                          String?
+  rank                            Int
+  selected                        Boolean      @default(false)
+  createdAt                       DateTime     @default(now())
+  updatedAt                       DateTime     @updatedAt
+
+  actions RecoveryAction[]
+
+  @@index([recoveryCaseId])
+}
+
+model RecoveryDecision {
+  id                              String       @id @default(uuid())
+  recoveryCaseId                  String
+  recoveryCase                    RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  decisionVersion                 Int          @default(1)
+  selectedCandidateId             String?
+  selectedAction                  String // RETRY_NOW, RETRY_LATER, PAYMENT_LINK, ALTERNATIVE_PAYMENT_METHOD, REMINDER, WAIT, HUMAN_REVIEW, STOP
+  recommendedAt                   DateTime
+  recommendedWindowStart          DateTime?
+  recommendedWindowEnd            DateTime?
+  channel                         String // SMS, EMAIL, WHATSAPP, IN_APP, PAYMENT_LINK, SYSTEM, HUMAN_REVIEW
+  paymentMethod                   String // UPI, CARD, NETBANKING, WALLET
+  recoveryProbability             Float
+  expectedRecoveryAmountMinorUnit BigInt
+  frictionScore                   Float
+  riskScore                       Float
+  netRecoveryValueMinorUnit       BigInt
+  confidence                      Float
+  decisionConfidenceLevel         String       @default("HIGH") // HIGH, MEDIUM, LOW
+  reason                          String       @db.Text
+  decisionTrace                   Json
+  contextVersion                  Int          @default(1)
+  modelVersion                    String       @default("1.0.0")
+  promptVersion                   String       @default("1.0.0")
+  featureVersion                  String       @default("1.0.0")
+  status                          String       @default("GENERATED") // GENERATED, SUPERSEDED, INVALIDATED
+  createdAt                       DateTime     @default(now())
+  updatedAt                       DateTime     @updatedAt
+
+  @@index([recoveryCaseId])
+  @@index([status])
+}
+
+model RecoveryAction {
+  id                 String             @id @default(uuid())
+  recoveryCaseId     String
+  recoveryCase       RecoveryCase       @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  candidateId        String?
+  candidate          RecoveryCandidate? @relation(fields: [candidateId], references: [id], onDelete: SetNull)
+  actionType         String
+  status             ActionStatus       @default(PENDING)
+  channel            String
+  paymentMethod      String?
+  scheduledAt        DateTime
+  startedAt          DateTime?
+  completedAt        DateTime?
+  approvedById       String?
+  approvedByUser     User?              @relation("ApprovedByUser", fields: [approvedById], references: [id], onDelete: SetNull)
+  executionReference String?
+  failureReason      String?
+  metadata           Json?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  policyDecisions PolicyDecision[]
+  outcomes        RecoveryOutcome[]
+
+  @@index([recoveryCaseId])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model RecoveryOutcome {
+  id                       String          @id @default(uuid())
+  recoveryCaseId           String
+  recoveryCase             RecoveryCase    @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  recoveryActionId         String?
+  recoveryAction           RecoveryAction? @relation(fields: [recoveryActionId], references: [id], onDelete: SetNull)
+  status                   OutcomeType
+  amountRecoveredMinorUnit BigInt          @default(0)
+  currency                 String          @default("INR")
+  paymentId                String?
+  outcomeType              OutcomeType
+  occurredAt               DateTime        @default(now())
+  metadata                 Json?
+  createdAt                DateTime        @default(now())
+
+  @@index([recoveryCaseId])
+}
+
+// ==========================================
+// 7. CUSTOMER ATTENTION BUDGET
+// ==========================================
+
+model CustomerAttentionBudget {
+  id                      String    @id @default(uuid())
+  customerId              String    @unique
+  customer                Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  maximumContacts         Int       @default(3)
+  contactsUsed            Int       @default(0)
+  maximumRetries          Int       @default(2)
+  retriesUsed             Int       @default(0)
+  maximumAutomatedActions Int       @default(5)
+  automatedActionsUsed    Int       @default(0)
+  cooldownHours           Int       @default(6)
+  lastContactAt           DateTime?
+  resetAt                 DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+}
+
+// ==========================================
+// 8. AI & ML PREDICTIONS
+// ==========================================
+
+model AIPrediction {
+  id             String       @id @default(uuid())
+  recoveryCaseId String
+  recoveryCase   RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  modelType      String       @default("llm-reasoning")
+  modelVersion   String       @default("gpt-4o-mini")
+  predictionType String       @default("diagnosis")
+  inputSnapshot  Json
+  output         Json
+  confidence     Float
+  promptVersion  String       @default("prompt-v1.0")
+  latencyMs      Int
+  createdAt      DateTime     @default(now())
+
+  @@index([recoveryCaseId])
+}
+
+model MLPrediction {
+  id               String       @id @default(uuid())
+  recoveryCaseId   String
+  recoveryCase     RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  modelVersion     String       @default("recovery-gb-v1.0")
+  prediction       Json
+  probability      Float
+  featuresSnapshot Json
+  featureVersion   String       @default("v1")
+  latencyMs        Int
+  createdAt        DateTime     @default(now())
+
+  @@index([recoveryCaseId])
+}
+
+model ModelVersion {
+  id                     String      @id @default(uuid())
+  name                   String
+  version                String      @unique
+  modelType              String
+  framework              String
+  metrics                Json
+  trainingDatasetVersion String?
+  status                 ModelStatus @default(ACTIVE)
+  createdAt              DateTime    @default(now())
+  deployedAt             DateTime?
+  retiredAt              DateTime?
+}
+
+model PromptVersion {
+  id          String    @id @default(uuid())
+  name        String
+  version     String    @unique
+  prompt      String    @db.Text
+  purpose     String
+  status      String    @default("ACTIVE")
+  createdAt   DateTime  @default(now())
+  activatedAt DateTime?
+  retiredAt   DateTime?
+}
+
+// ==========================================
+// 9. POLICIES & DECISIONS
+// ==========================================
+
+model Policy {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  description   String
+  policyType    String
+  configuration Json
+  priority      Int      @default(1)
+  enabled       Boolean  @default(true)
+  version       String   @default("v1.0")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  policyDecisions PolicyDecision[]
+}
+
+model PolicyDecision {
+  id               String               @id @default(uuid())
+  recoveryCaseId   String
+  recoveryCase     RecoveryCase         @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  recoveryActionId String?
+  recoveryAction   RecoveryAction?      @relation(fields: [recoveryActionId], references: [id], onDelete: SetNull)
+  policyId         String?
+  policy           Policy?              @relation(fields: [policyId], references: [id], onDelete: SetNull)
+  policyVersion    String               @default("v1.0")
+  decision         PolicyDecisionResult
+  reason           String
+  evaluatedInput   Json
+  evaluatedAt      DateTime             @default(now())
+  evaluatedById    String?
+  evaluatedByUser  User?                @relation("EvaluatedByUser", fields: [evaluatedById], references: [id], onDelete: SetNull)
+
+  @@index([recoveryCaseId])
+}
+
+// ==========================================
+// 10. WORKFLOW JOBS & NOTIFICATIONS
+// ==========================================
+
+model WorkflowJob {
+  id             String            @id @default(uuid())
+  recoveryCaseId String?
+  recoveryCase   RecoveryCase?     @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  jobType        String
+  queueName      String
+  status         WorkflowJobStatus @default(QUEUED)
+  attempts       Int               @default(0)
+  scheduledAt    DateTime          @default(now())
+  startedAt      DateTime?
+  completedAt    DateTime?
+  lastError      String?
+  payload        Json
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model Notification {
+  id                String              @id @default(uuid())
+  customerId        String
+  customer          Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  recoveryCaseId    String?
+  recoveryCase      RecoveryCase?       @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  channel           NotificationChannel
+  type              String
+  status            String              @default("SCHEDULED")
+  scheduledAt       DateTime            @default(now())
+  sentAt            DateTime?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
+  providerReference String?
+  contentMetadata   Json?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([customerId])
+}
+
+// ==========================================
+// 11. AUDIT LOGS (APPEND-ONLY)
+// ==========================================
+
+model AuditLog {
+  id            String    @id @default(uuid())
+  entityType    String
+  entityId      String?
+  eventType     String
+  actorType     ActorType
+  actorId       String?
+  action        String
+  previousState Json?
+  newState      Json?
+  metadata      Json?
+  correlationId String?
+  timestamp     DateTime  @default(now())
+
+  @@index([entityType, entityId])
+  @@index([timestamp])
+  @@index([correlationId])
+}
+
+// ==========================================
+// 12. EVALUATION & DATASETS
+// ==========================================
+
+model EvaluationRun {
+  id                             String      @id @default(uuid())
+  name                           String
+  datasetVersion                 String
+  datasetType                    DatasetType @default(SIMULATION)
+  totalRecords                   Int
+  totalRevenueAtRiskMinorUnit    BigInt
+  totalRecoveredRevenueMinorUnit BigInt
+  recoveryRate                   Float
+  precision                      Float
+  recall                         Float
+  f1                             Float
+  falsePositiveCostMinorUnit     BigInt      @default(0)
+  falseNegativeCostMinorUnit     BigInt      @default(0)
+  baselineResults                Json?
+  startedAt                      DateTime    @default(now())
+  completedAt                    DateTime?
+  createdAt                      DateTime    @default(now())
+
+  evaluationRecords EvaluationRecord[]
+}
+
+model EvaluationRecord {
+  id                       String        @id @default(uuid())
+  evaluationRunId          String
+  evaluationRun            EvaluationRun @relation(fields: [evaluationRunId], references: [id], onDelete: Cascade)
+  customerId               String?
+  paymentId                String?
+  groundTruth              Boolean
+  prediction               Boolean
+  predictedProbability     Float
+  selectedAction           String
+  actualOutcome            String
+  recoveredAmountMinorUnit BigInt        @default(0)
+  correct                  Boolean
+  metadata                 Json?
+  createdAt                DateTime      @default(now())
+
+  @@index([evaluationRunId])
+}
+
+model DatasetVersion {
+  id          String      @id @default(uuid())
+  name        String
+  version     String      @unique
+  datasetType DatasetType @default(TRAINING)
+  recordCount Int
+  description String?
+  hash        String?
+  createdAt   DateTime    @default(now())
+}

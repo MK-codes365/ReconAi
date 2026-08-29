@@ -1,0 +1,94 @@
+{
+  "model_name": "recovery-xgboost",
+  "model_version": "1.0.0",
+  "feature_version": "1.0.0",
+  "training_samples": 1750,
+  "validation_samples": 375,
+  "test_samples": 375,
+  "validation_metrics": {
+    "accuracy": 0.6827,
+    "precision": 0.6807,
+    "recall": 0.7902,
+    "f1": 0.7314,
+    "brier_score": 0.205,
+    "confusion_matrix": {
+      "tp": 162,
+      "fp": 76,
+      "fn": 43,
+      "tn": 94
+    }
+  },
+  "test_metrics": {
+    "accuracy": 0.6933,
+    "precision": 0.7171,
+    "recall": 0.8036,
+    "f1": 0.7579,
+    "brier_score": 0.2014,
+    "confusion_matrix": {
+      "tp": 180,
+      "fp": 71,
+      "fn": 44,
+      "tn": 80
+    }
+  },
+  "baseline_test_metrics": {
+    "accuracy": 0.5973,
+    "precision": 0.5973,
+    "recall": 1.0,
+    "f1": 0.7479,
+    "brier_score": 0.2433,
+    "confusion_matrix": {
+      "tp": 224,
+      "fp": 151,
+      "fn": 0,
+      "tn": 0
+    }
+  },
+  "business_metrics": {
+    "total_revenue_at_risk_inr": 9397724.5,
+    "expected_recoverable_revenue_inr": 5362545.41,
+    "actual_recovered_revenue_inr": 5822469.2,
+    "recovery_rate_percent": 61.96,
+    "false_positive_cost_inr": 19556.66,
+    "false_negative_cost_inr": 1125641.23
+  },
+  "top_features": [
+    {
+      "feature": "retry_count",
+      "importance": 0.4827
+    },
+    {
+      "feature": "succ_rate",
+      "importance": 0.3993
+    },
+    {
+      "feature": "payment_hour",
+      "importance": 0.3091
+    },
+    {
+      "feature": "reason_code",
+      "importance": 0.2554
+    },
+    {
+      "feature": "method_code",
+      "importance": 0.137
+    },
+    {
+      "feature": "amount_log",
+      "importance": 0.0443
+    },
+    {
+      "feature": "payment_day",
+      "importance": 0.0271
+    },
+    {
+      "feature": "hist_rec_rate",
+      "importance": 0.0266
+    },
+    {
+      "feature": "tenure_days",
+      "importance": 0.0078
+    }
+  ],
+  "status": "ACTIVE"
+}

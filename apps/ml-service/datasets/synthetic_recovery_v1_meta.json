@@ -1,0 +1,9 @@
+{
+  "dataset_name": "synthetic_recovery_v1",
+  "dataset_version": "1.0.0",
+  "record_count": 2500,
+  "feature_version": "1.0.0",
+  "random_seed": 42,
+  "hash": "96a256ef1a28aab0cf1d85914f4f5e577a20120ed08d9d8add88e55d39417b7c",
+  "created_at": "2026-08-29T10:53:54.439748"
+}
