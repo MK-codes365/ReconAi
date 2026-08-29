@@ -1,4 +1,4 @@
-import Razorpay from 'razorpay';
+const Razorpay = require('razorpay');
 import { config } from '@reconai/config';
 import { 
   CreateOrderParams, CreatePaymentLinkParams, 

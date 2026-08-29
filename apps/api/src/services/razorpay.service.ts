@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import Razorpay from 'razorpay';
+const Razorpay = require('razorpay');
 import { config } from '@reconai/config';
 
 export class RazorpayService {
