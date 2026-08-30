@@ -1,274 +1,7 @@
 {
-  "cases": [
-    {
-      "id": "case_1788080172415",
-      "caseNumber": "REC-2026-003",
-      "caseType": "PAYMENT_FAILURE",
-      "status": "PENDING_ACTION",
-      "priority": "HIGH",
-      "priorityScore": 94,
-      "amountAtRiskInr": 45000,
-      "recoveredAmountInr": 0,
-      "customerName": "Kavita Iyer (Nexus Global)",
-      "customerEmail": "kavita@nexusglobal.in",
-      "customerPhone": "+919876543210",
-      "failureReason": "bank_gateway_timeout_504",
-      "createdAt": "2026-08-30T08:56:12.415Z",
-      "updatedAt": "2026-08-30T08:56:36.161Z",
-      "scheduledAt": "2026-08-30T08:56:32.415Z",
-      "optimalAction": "SEND_PAYMENT_LINK_WHATSAPP",
-      "optimalChannel": "WHATSAPP",
-      "paymentLinkUrl": "/pay/case_1788080172415",
-      "customer": {
-        "id": "cust_1788080172415",
-        "name": "Kavita Iyer (Nexus Global)",
-        "email": "kavita@nexusglobal.in",
-        "phone": "+919876543210",
-        "attentionBudget": {
-          "contactsUsed": 1,
-          "maximumContacts": 3,
-          "retriesUsed": 0,
-          "maximumRetries": 2,
-          "cooldownHours": 6
-        }
-      },
-      "candidates": [
-        {
-          "id": "cand_1788080172415_1",
-          "rank": 1,
-          "actionType": "SEND_PAYMENT_LINK_WHATSAPP",
-          "channel": "WHATSAPP",
-          "paymentMethod": "UPI_COLLECT",
-          "recoveryProbability": 0.88,
-          "frictionScore": 1.2,
-          "netRecoveryValueMinorUnit": "3960000",
-          "scheduledTime": "2026-08-30T08:56:32.415Z",
-          "selected": true,
-          "reason": "Optimal historical recovery window (WhatsApp channel). Predicted probability 88%."
-        },
-        {
-          "id": "cand_1788080172415_2",
-          "rank": 2,
-          "actionType": "AUTO_RETRY_TRANSACTION",
-          "channel": "BANK_SWITCH",
-          "paymentMethod": "NETBANKING_HDFC",
-          "recoveryProbability": 0.72,
-          "frictionScore": 1,
-          "netRecoveryValueMinorUnit": "3240000",
-          "scheduledTime": "2026-08-30T09:56:12.415Z",
-          "selected": false,
-          "reason": "Secondary fallback route via alternate banking switch."
-        }
-      ]
-    },
-    {
-      "id": "case_1788080172141",
-      "caseNumber": "REC-2026-002",
-      "caseType": "PAYMENT_FAILURE",
-      "status": "PENDING_ACTION",
-      "priority": "HIGH",
-      "priorityScore": 94,
-      "amountAtRiskInr": 45000,
-      "recoveredAmountInr": 0,
-      "customerName": "Kavita Iyer (Nexus Global)",
-      "customerEmail": "kavita@nexusglobal.in",
-      "customerPhone": "+919876543210",
-      "failureReason": "bank_gateway_timeout_504",
-      "createdAt": "2026-08-30T08:56:12.141Z",
-      "updatedAt": "2026-08-30T08:56:36.170Z",
-      "scheduledAt": "2026-08-30T08:56:32.141Z",
-      "optimalAction": "SEND_PAYMENT_LINK_WHATSAPP",
-      "optimalChannel": "WHATSAPP",
-      "paymentLinkUrl": "/pay/case_1788080172141",
-      "customer": {
-        "id": "cust_1788080172141",
-        "name": "Kavita Iyer (Nexus Global)",
-        "email": "kavita@nexusglobal.in",
-        "phone": "+919876543210",
-        "attentionBudget": {
-          "contactsUsed": 1,
-          "maximumContacts": 3,
-          "retriesUsed": 0,
-          "maximumRetries": 2,
-          "cooldownHours": 6
-        }
-      },
-      "candidates": [
-        {
-          "id": "cand_1788080172141_1",
-          "rank": 1,
-          "actionType": "SEND_PAYMENT_LINK_WHATSAPP",
-          "channel": "WHATSAPP",
-          "paymentMethod": "UPI_COLLECT",
-          "recoveryProbability": 0.88,
-          "frictionScore": 1.2,
-          "netRecoveryValueMinorUnit": "3960000",
-          "scheduledTime": "2026-08-30T08:56:32.141Z",
-          "selected": true,
-          "reason": "Optimal historical recovery window (WhatsApp channel). Predicted probability 88%."
-        },
-        {
-          "id": "cand_1788080172141_2",
-          "rank": 2,
-          "actionType": "AUTO_RETRY_TRANSACTION",
-          "channel": "BANK_SWITCH",
-          "paymentMethod": "NETBANKING_HDFC",
-          "recoveryProbability": 0.72,
-          "frictionScore": 1,
-          "netRecoveryValueMinorUnit": "3240000",
-          "scheduledTime": "2026-08-30T09:56:12.141Z",
-          "selected": false,
-          "reason": "Secondary fallback route via alternate banking switch."
-        }
-      ]
-    },
-    {
-      "id": "case_rec_9824",
-      "caseNumber": "CASE-2026-9824",
-      "caseType": "CHECKOUT_DROP",
-      "status": "ACTION_EXECUTING",
-      "priority": "HIGH",
-      "priorityScore": 0.88,
-      "amountAtRiskInr": 4999,
-      "recoveredAmountInr": 0,
-      "customerName": "Priya Sharma",
-      "customerEmail": "priya.sharma@enterprise.io",
-      "customerPhone": "+919876543210",
-      "failureReason": "BANK_COMMUNICATION_ERROR (Issuer OTP Gateway Timeout)",
-      "createdAt": "2026-08-30T08:24:00.000Z",
-      "updatedAt": "2026-08-30T08:24:00.000Z",
-      "scheduledAt": "2026-08-30T08:24:10.000Z",
-      "optimalAction": "WHATSAPP_RECOVERY_LINK",
-      "optimalChannel": "WHATSAPP",
-      "paymentLinkUrl": "http://localhost:3000/pay/case_rec_9824",
-      "customer": {
-        "id": "cust_9824",
-        "name": "Priya Sharma",
-        "email": "priya.sharma@enterprise.io",
-        "phone": "+919876543210",
-        "attentionBudget": {
-          "contactsUsed": 1,
-          "maximumContacts": 3,
-          "retriesUsed": 0,
-          "maximumRetries": 2,
-          "cooldownHours": 6
-        }
-      },
-      "candidates": [
-        {
-          "id": "cand_1",
-          "rank": 1,
-          "actionType": "SEND_WHATSAPP_LINK",
-          "channel": "WHATSAPP",
-          "paymentMethod": "UPI_INTENT",
-          "recoveryProbability": 0.78,
-          "frictionScore": 0.15,
-          "netRecoveryValueMinorUnit": "389922",
-          "scheduledTime": "2026-08-30T08:24:10.000Z",
-          "selected": true,
-          "reason": "Customer on mobile network with high historical WhatsApp open rate."
-        }
-      ]
-    }
-  ],
-  "auditLogs": [
-    {
-      "id": "audit_1788080196172",
-      "entityType": "RecoveryCase",
-      "entityId": "case_1788080172141",
-      "eventType": "EXECUTION_DISPATCHED",
-      "actorType": "AUTOMATED_SCHEDULER",
-      "action": "DISPATCHED_SEND_PAYMENT_LINK_WHATSAPP_VIA_WHATSAPP",
-      "timestamp": "2026-08-30T08:56:36.172Z",
-      "metadata": {
-        "caseNumber": "REC-2026-002",
-        "channel": "WHATSAPP",
-        "paymentUrl": "http://localhost:3000/pay/case_1788080172141",
-        "customerPhone": "+919876543210"
-      }
-    },
-    {
-      "id": "audit_1788080196163",
-      "entityType": "RecoveryCase",
-      "entityId": "case_1788080172415",
-      "eventType": "EXECUTION_DISPATCHED",
-      "actorType": "AUTOMATED_SCHEDULER",
-      "action": "DISPATCHED_SEND_PAYMENT_LINK_WHATSAPP_VIA_WHATSAPP",
-      "timestamp": "2026-08-30T08:56:36.163Z",
-      "metadata": {
-        "caseNumber": "REC-2026-003",
-        "channel": "WHATSAPP",
-        "paymentUrl": "http://localhost:3000/pay/case_1788080172415",
-        "customerPhone": "+919876543210"
-      }
-    },
-    {
-      "id": "audit_1788080172415",
-      "entityType": "RecoveryCase",
-      "entityId": "case_1788080172415",
-      "eventType": "WEBHOOK_PROCESSED",
-      "actorType": "RAZORPAY_WEBHOOK",
-      "action": "CREATED_RECOVERY_CASE",
-      "timestamp": "2026-08-30T08:56:12.415Z",
-      "metadata": {
-        "caseNumber": "REC-2026-003",
-        "amountAtRiskInr": 45000,
-        "failureReason": "bank_gateway_timeout_504",
-        "optimalAction": "SEND_PAYMENT_LINK_WHATSAPP",
-        "scheduledAt": "2026-08-30T08:56:32.415Z"
-      }
-    },
-    {
-      "id": "audit_1788080172143",
-      "entityType": "RecoveryCase",
-      "entityId": "case_1788080172141",
-      "eventType": "WEBHOOK_PROCESSED",
-      "actorType": "RAZORPAY_WEBHOOK",
-      "action": "CREATED_RECOVERY_CASE",
-      "timestamp": "2026-08-30T08:56:12.143Z",
-      "metadata": {
-        "caseNumber": "REC-2026-002",
-        "amountAtRiskInr": 45000,
-        "failureReason": "bank_gateway_timeout_504",
-        "optimalAction": "SEND_PAYMENT_LINK_WHATSAPP",
-        "scheduledAt": "2026-08-30T08:56:32.141Z"
-      }
-    }
-  ],
-  "journeyEvents": [
-    {
-      "id": "j_1788080196171",
-      "customerId": "cust_1788080172141",
-      "eventType": "ACTION_EXECUTED",
-      "title": "Recovery Dispatched via WHATSAPP",
-      "description": "Sent payment recovery link to +919876543210 via WHATSAPP. Amount: ₹45,000.",
-      "timestamp": "2026-08-30T08:56:36.171Z"
-    },
-    {
-      "id": "j_1788080196161",
-      "customerId": "cust_1788080172415",
-      "eventType": "ACTION_EXECUTED",
-      "title": "Recovery Dispatched via WHATSAPP",
-      "description": "Sent payment recovery link to +919876543210 via WHATSAPP. Amount: ₹45,000.",
-      "timestamp": "2026-08-30T08:56:36.161Z"
-    },
-    {
-      "id": "j_1788080172415",
-      "customerId": "cust_1788080172415",
-      "eventType": "PAYMENT_FAILED",
-      "title": "Razorpay Payment Authorization Failed",
-      "description": "Gateway error: bank_gateway_timeout_504. Amount: ₹45,000",
-      "timestamp": "2026-08-30T08:56:12.415Z"
-    },
-    {
-      "id": "j_1788080172142",
-      "customerId": "cust_1788080172142",
-      "eventType": "PAYMENT_FAILED",
-      "title": "Razorpay Payment Authorization Failed",
-      "description": "Gateway error: bank_gateway_timeout_504. Amount: ₹45,000",
-      "timestamp": "2026-08-30T08:56:12.142Z"
-    }
-  ],
+  "cases": [],
+  "auditLogs": [],
+  "journeyEvents": [],
   "notifications": [],
   "users": [
     {
@@ -297,6 +30,22 @@
       "role": "OPERATOR",
       "isActive": true,
       "createdAt": "2026-08-30T07:58:54.494Z"
+    },
+    {
+      "id": "usr_admin_001",
+      "name": "Lead System Administrator",
+      "email": "admin@reconai.io",
+      "passwordHash": "admin123",
+      "role": "ADMIN",
+      "isActive": true
+    },
+    {
+      "id": "usr_operator_001",
+      "name": "Recovery Operations Lead",
+      "email": "operator@reconai.io",
+      "passwordHash": "operator123",
+      "role": "OPERATOR",
+      "isActive": true
     }
   ]
 }
