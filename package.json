@@ -11,7 +11,7 @@
     "start": "concurrently -k -p \"[{name}]\" -n \"WEB,API,ML\" -c \"cyan,magenta,yellow\" \"npm --prefix apps/web run dev\" \"npm --prefix apps/api run start:dev\" \"cd apps/ml-service && python -m uvicorn app.main:app --reload --port 8000\"",
     "dev": "npm start",
     "build": "npm run build --workspaces",
-    "postinstall": "prisma generate",
+    "postinstall": "npx prisma generate || true",
     "dev:api": "npm --prefix apps/api run start:dev",
     "dev:web": "npm --prefix apps/web run dev",
     "dev:ml": "cd apps/ml-service && python -m uvicorn app.main:app --reload --port 8000",
