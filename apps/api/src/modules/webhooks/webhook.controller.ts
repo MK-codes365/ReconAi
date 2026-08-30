@@ -44,54 +44,12 @@ export class WebhookController {
     // 2. If payment captured event, mark recovered in persistentStore
     if (eventType === 'payment.captured' || eventType === 'order.paid') {
       const allCases = persistentStore.getCases();
-      const activeCase = allCases.find(c => c.status !== 'RECOVERED');
+      const activeCase = allCases.find(c => c.status !== 'RECOVERED') || allCases[0];
       if (activeCase) {
         persistentStore.recordPaymentRecovery(activeCase.id, amountInr);
         wsService.broadcast('payment.recovered', {
           caseId: activeCase.id,
           caseNumber: activeCase.caseNumber,
-          amountRecoveredInr: amountInr,
-          customerName,
-          timestamp: new Date().toISOString()
-        });
-      } else {
-        const caseNumber = `REC-2026-${(allCases.length + 1).toString().padStart(3, '0')}`;
-        const caseId = `case_${Date.now()}`;
-        persistentStore.addCase({
-          id: caseId,
-          caseNumber,
-          caseType: 'PAYMENT_CAPTURE',
-          status: 'RECOVERED',
-          priority: amountInr >= 25000 ? 'HIGH' : 'MEDIUM',
-          priorityScore: 88,
-          amountAtRiskInr: amountInr,
-          recoveredAmountInr: amountInr,
-          customerName,
-          customerEmail,
-          customerPhone: paymentEntity.contact || '+919876543210',
-          failureReason: 'Razorpay Direct Payment Capture',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          optimalAction: 'WHATSAPP_RECOVERY',
-          optimalChannel: 'WHATSAPP',
-          customer: {
-            id: `cust_${Date.now()}`,
-            name: customerName,
-            email: customerEmail,
-            phone: paymentEntity.contact || '+919876543210',
-            attentionBudget: {
-              contactsUsed: 1,
-              maximumContacts: 3,
-              retriesUsed: 0,
-              maximumRetries: 2,
-              cooldownHours: 6
-            }
-          },
-          candidates: []
-        });
-        wsService.broadcast('payment.recovered', {
-          caseId,
-          caseNumber,
           amountRecoveredInr: amountInr,
           customerName,
           timestamp: new Date().toISOString()

@@ -7,7 +7,7 @@ import {
   ArrowLeft, User, ShieldCheck, Cpu, AlertOctagon, 
   PauseCircle, History, BarChart2, Zap, Award, ShieldAlert, CheckCircle2,
   Clock, DollarSign, Activity, Sparkles, ChevronRight, Mail, Phone, Lock,
-  Share2, Copy, ExternalLink, Check, MessageSquare, Edit3
+  Share2, Copy, ExternalLink, Check, MessageSquare, Edit3, Smartphone
 } from 'lucide-react';
 import MainButton from '@/components/common/MainButton';
 
@@ -241,21 +241,26 @@ ${payUrl}
               <User className="w-4 h-4 text-blue-400" />
               <span>Customer Context</span>
             </div>
-            <div className="text-xs space-y-3 text-slate-300">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Name:</span>
-                <span className="font-semibold text-white">{caseRecord.customerName || caseRecord.customer?.name}</span>
+            <div className="text-xs space-y-3.5 text-slate-300">
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-slate-400 font-mono text-[11px]">Customer:</span>
+                <span className="font-bold text-white truncate">{caseRecord.customerName || caseRecord.customer?.name}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-400">Email:</span>
-                <span className="font-mono text-slate-300 text-[11px]">{caseRecord.customerEmail || caseRecord.customer?.email}</span>
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-slate-400 font-mono text-[11px]">Email Address:</span>
+                <span className="font-mono text-slate-300 text-[11px] truncate max-w-[190px] text-right" title={caseRecord.customerEmail || caseRecord.customer?.email}>
+                  {caseRecord.customerEmail || caseRecord.customer?.email}
+                </span>
               </div>
 
               {/* Editable Phone Input */}
-              <div className="space-y-1 pt-1 border-t border-slate-800/60">
+              <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
                 <div className="flex justify-between items-center text-slate-400 text-[11px]">
-                  <span>Recipient WhatsApp:</span>
-                  <span className="text-[#FA5D29] font-mono text-[10px]">Editable</span>
+                  <span className="flex items-center gap-1">
+                    <MessageSquare className="w-3 h-3 text-emerald-400" />
+                    <span>WhatsApp Number:</span>
+                  </span>
+                  <span className="text-emerald-400 font-mono text-[10px] bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">Editable</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
@@ -264,19 +269,19 @@ ${payUrl}
                     value={phoneInput}
                     onChange={(e) => setPhoneInput(e.target.value)}
                     placeholder="+91 75359 47485"
-                    className="w-full bg-[#080d18] border border-slate-700/80 focus:border-emerald-500 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono outline-none transition"
+                    className="w-full bg-[#080d18] border border-slate-700/80 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none transition shadow-inner"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-between items-center pt-1 border-t border-slate-800/60">
-                <span className="text-slate-400">Amount At Risk:</span>
-                <span className="font-mono font-bold text-red-400 text-sm">₹{caseRecord.amountAtRiskInr?.toLocaleString('en-IN')}</span>
+              <div className="flex justify-between items-center pt-2 border-t border-slate-800/80">
+                <span className="text-slate-400 font-mono text-[11px]">Amount At Risk:</span>
+                <span className="font-mono font-extrabold text-red-400 text-sm">₹{caseRecord.amountAtRiskInr?.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Priority Score:</span>
-                <span className="font-mono font-bold text-amber-400 px-2 py-0.5 rounded bg-amber-950/60 border border-amber-800/40">
-                  {caseRecord.priorityScore}
+                <span className="text-slate-400 font-mono text-[11px]">AI Priority Score:</span>
+                <span className="font-mono font-bold text-amber-400 px-2 py-0.5 rounded bg-amber-950/60 border border-amber-800/40 text-[11px]">
+                  {caseRecord.priorityScore} / 100
                 </span>
               </div>
             </div>
@@ -360,48 +365,58 @@ ${payUrl}
             </div>
 
             {topCandidate ? (
-              <div className="space-y-3.5">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                  <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 text-[10px] uppercase font-mono">Action</span>
-                    <div className="font-mono font-bold text-[#FA5D29] text-sm mt-0.5">{topCandidate.actionType}</div>
-                  </div>
-                  <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 text-[10px] uppercase font-mono">Recommended Time</span>
-                    <div className="font-mono font-bold text-white text-xs mt-0.5">
-                      {new Date(topCandidate.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  <div className="bg-[#080d18] p-3.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <span className="text-slate-400 text-[10px] uppercase font-mono font-bold tracking-wider">Optimal Action</span>
+                    <div className="font-bold text-[#FA5D29] text-xs mt-1.5 flex items-center gap-1.5">
+                      <Smartphone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span className="truncate">
+                        {topCandidate.actionType === 'SEND_PAYMENT_LINK_WHATSAPP' ? 'WhatsApp 1-Click Link' :
+                         topCandidate.actionType === 'AUTO_RETRY_TRANSACTION' ? 'Smart Network Retry' :
+                         topCandidate.actionType.replace(/_/g, ' ')}
+                      </span>
                     </div>
                   </div>
-                  <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 text-[10px] uppercase font-mono">Channel / Method</span>
-                    <div className="font-mono font-bold text-white text-xs mt-0.5">{topCandidate.channel} ({topCandidate.paymentMethod})</div>
+                  <div className="bg-[#080d18] p-3.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <span className="text-slate-400 text-[10px] uppercase font-mono font-bold tracking-wider">Recommended Time</span>
+                    <div className="font-mono font-bold text-white text-xs mt-1.5 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                      <span>{new Date(topCandidate.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
                   </div>
-                  <div className="bg-[#080d18] p-3 rounded-xl border border-slate-800">
-                    <span className="text-slate-400 text-[10px] uppercase font-mono">Net Recovery Value</span>
-                    <div className="font-mono font-bold text-emerald-400 text-sm mt-0.5">
+                  <div className="bg-[#080d18] p-3.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <span className="text-slate-400 text-[10px] uppercase font-mono font-bold tracking-wider">Channel & Method</span>
+                    <div className="font-mono font-bold text-slate-200 text-xs mt-1.5 truncate">
+                      {topCandidate.channel} ({topCandidate.paymentMethod || 'UPI'})
+                    </div>
+                  </div>
+                  <div className="bg-[#080d18] p-3.5 rounded-xl border border-slate-800 flex flex-col justify-between">
+                    <span className="text-slate-400 text-[10px] uppercase font-mono font-bold tracking-wider">Net Recovery Value</span>
+                    <div className="font-mono font-extrabold text-emerald-400 text-sm mt-1.5">
                       ₹{(Number(topCandidate.netRecoveryValueMinorUnit) / 100).toLocaleString('en-IN')}
                     </div>
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-300 leading-relaxed bg-[#080d18] p-3.5 rounded-xl border border-slate-800/90">
+                <p className="text-xs text-slate-300 leading-relaxed bg-[#080d18] p-3.5 rounded-xl border border-slate-800/90 font-sans">
                   <span className="text-[#FA5D29] font-bold">Why Selected: </span>
                   {decision?.reason || topCandidate.reason}
                 </p>
 
-                <div className="flex items-center justify-end space-x-3 pt-1">
+                <div className="flex flex-wrap items-center justify-end gap-3 pt-1">
                   <a
                     href={directWaUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all inline-flex items-center space-x-2 shadow-lg shadow-emerald-900/30 hover:-translate-y-0.5"
+                    className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all inline-flex items-center space-x-2 shadow-lg shadow-emerald-900/40 hover:-translate-y-0.5"
                   >
                     <MessageSquare className="w-4 h-4 fill-current" />
                     <span>Send to WhatsApp ({phoneInput || '+91 75359 47485'})</span>
                   </a>
 
                   <MainButton
-                    text={`Execute ${topCandidate.actionType}`}
+                    text={caseRecord.status === 'RECOVERED' ? 'Already Recovered' : 'Execute Recovery Action'}
                     variant="emerald"
                     isLoading={executing}
                     disabled={executing || caseRecord.status === 'RECOVERED'}
