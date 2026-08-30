@@ -17,23 +17,37 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let ws: WebSocket;
+    let timer: NodeJS.Timeout;
+
     const connectWs = () => {
-      ws = new WebSocket("ws://localhost:4000");
-      ws.onopen = () => {
-        setWsConnected(true);
-        setLastSync(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-      };
-      ws.onclose = () => {
+      try {
+        if (typeof window === 'undefined') return;
+        const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:4000";
+        ws = new WebSocket(wsUrl);
+        ws.onopen = () => {
+          setWsConnected(true);
+          setLastSync(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+        };
+        ws.onclose = () => {
+          setWsConnected(false);
+          timer = setTimeout(connectWs, 5000);
+        };
+        ws.onerror = () => {
+          setWsConnected(false);
+        };
+        ws.onmessage = () => {
+          setLastSync(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+        };
+      } catch (_) {
         setWsConnected(false);
-        setTimeout(connectWs, 3000);
-      };
-      ws.onmessage = () => {
-        setLastSync(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-      };
+      }
     };
 
     connectWs();
-    return () => { if (ws) ws.close(); };
+    return () => { 
+      if (ws) ws.close(); 
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   // Customer-facing checkout and landing pages bypass the admin shell entirely
