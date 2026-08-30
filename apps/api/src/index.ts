@@ -43,6 +43,19 @@ app.use(express.json({
   }
 }));
 
+// Root Endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    service: 'ReconAI Revenue Recovery Backend API Engine',
+    version: '2.0.0',
+    frontend: 'http://localhost:3000',
+    dashboard: 'http://localhost:3000/dashboard',
+    health: '/health',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Phase 1 & 2 Health Check Endpoint
 app.get('/health', HealthController.getHealth);
 
