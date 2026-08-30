@@ -66,6 +66,17 @@ class PredictRecoveryResponse(BaseModel):
     latency_ms: float
     top_features: List[FeatureImportanceItem]
 
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "service": "ReconAI ML Prediction Microservice",
+        "version": "1.0.0",
+        "model": "recovery-xgboost",
+        "docs": "/docs",
+        "health": "/health"
+    }
+
 @app.get("/health", response_model=HealthResponse)
 def health_check():
     return HealthResponse(
