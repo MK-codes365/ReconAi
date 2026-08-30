@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { 
   ShieldCheck, LayoutDashboard, Activity, FileText, BarChart3, 
@@ -92,10 +93,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </button>
 
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FA5D29] via-orange-600 to-amber-600 flex items-center justify-center text-white font-bold shadow-lg shadow-[#FA5D29]/30 group-hover:scale-105 transition-transform duration-200">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
+            <div className="relative flex items-center justify-center">
+              <Image 
+                src="/Logo.png" 
+                alt="ReconAI Logo" 
+                width={36} 
+                height={36} 
+                className="w-9 h-9 rounded-xl object-contain shadow-lg shadow-[#FA5D29]/30 group-hover:scale-105 transition-transform duration-200" 
+                priority
+              />
               <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500"></span>

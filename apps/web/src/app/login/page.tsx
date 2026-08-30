@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { 
   ShieldCheck, Lock, Mail, ArrowRight, Zap, Shield, 
@@ -58,8 +59,15 @@ export default function LoginPage() {
 
         {/* Header */}
         <div className="text-center space-y-2.5">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FA5D29]/20 to-orange-600/10 border border-[#FA5D29]/40 flex items-center justify-center text-[#FA5D29] mx-auto shadow-lg shadow-[#FA5D29]/10">
-            <ShieldCheck className="w-7 h-7" />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FA5D29]/20 to-orange-600/10 border border-[#FA5D29]/40 flex items-center justify-center mx-auto shadow-xl shadow-[#FA5D29]/20 p-2">
+            <Image 
+              src="/Logo.png" 
+              alt="ReconAI Logo" 
+              width={52} 
+              height={52} 
+              className="object-contain rounded-xl" 
+              priority
+            />
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-white tracking-tight">ReconAI Portal</h1>

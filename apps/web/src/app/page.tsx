@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Marquee from 'react-fast-marquee';
 import { motion } from 'framer-motion';
 import { FollowerPointerCard } from '@/components/ui/following-pointer';
@@ -38,9 +39,14 @@ export default function ReconAiLandingPage() {
       <header className="sticky top-0 z-50 bg-[#0a0f1d]/90 backdrop-blur-md border-b border-slate-800/80 px-6 py-4 shadow-2xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#FA5D29] to-orange-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-[#FA5D29]/30">
-              R
-            </div>
+            <Image 
+              src="/Logo.png" 
+              alt="ReconAI Logo" 
+              width={40} 
+              height={40} 
+              className="w-10 h-10 rounded-2xl object-contain shadow-lg shadow-[#FA5D29]/30" 
+              priority
+            />
             <div>
               <span className="font-extrabold text-xl tracking-tight text-white">Recon<span className="text-[#FA5D29]">AI</span></span>
               <span className="ml-2 px-2.5 py-0.5 rounded-full bg-slate-800 text-[10px] font-mono text-emerald-400 border border-slate-700 font-bold">
@@ -334,9 +340,13 @@ export default function ReconAiLandingPage() {
       <footer className="border-t border-slate-800/80 bg-[#04070e] py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-xl bg-[#FA5D29] flex items-center justify-center text-white font-bold text-sm">
-              R
-            </div>
+            <Image 
+              src="/Logo.png" 
+              alt="ReconAI Logo" 
+              width={32} 
+              height={32} 
+              className="w-8 h-8 rounded-xl object-contain shadow-md" 
+            />
             <span className="font-bold text-white text-sm">ReconAI Platform</span>
           </div>
 

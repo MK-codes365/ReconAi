@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, CheckCircle2, CreditCard, Smartphone, Building2, 
@@ -188,7 +189,17 @@ export default function CustomerRecoveryPaymentPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-2"
         >
-          <div className="flex items-center justify-center gap-2 text-xs text-slate-500 mb-3">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Image 
+              src="/Logo.png" 
+              alt="ReconAI Logo" 
+              width={48} 
+              height={48} 
+              className="w-12 h-12 rounded-2xl object-contain shadow-lg shadow-[#FA5D29]/20" 
+              priority
+            />
+          </div>
+          <div className="flex items-center justify-center gap-2 text-xs text-slate-500 mb-1">
             <Shield className="w-4 h-4 text-emerald-500" />
             <span>Secured Payment Recovery Portal</span>
           </div>
