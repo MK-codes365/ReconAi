@@ -150,9 +150,16 @@ export const Lid = ({
           }}
           className="absolute inset-0 bg-[#010101] rounded-lg flex items-center justify-center"
         >
-          <span className="text-white">
-            <AceternityLogo />
-          </span>
+          <div className="flex items-center justify-center p-2">
+            <Image 
+              src="/Logo.png" 
+              alt="ReconAI Logo" 
+              width={32} 
+              height={32} 
+              className="w-8 h-8 rounded-xl object-contain drop-shadow-lg shadow-[#FA5D29]/20" 
+              priority
+            />
+          </div>
         </div>
       </div>
       <motion.div

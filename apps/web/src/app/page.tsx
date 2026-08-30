@@ -47,12 +47,7 @@ export default function ReconAiLandingPage() {
               className="w-10 h-10 rounded-2xl object-contain shadow-lg shadow-[#FA5D29]/30" 
               priority
             />
-            <div>
-              <span className="font-extrabold text-xl tracking-tight text-white">Recon<span className="text-[#FA5D29]">AI</span></span>
-              <span className="ml-2 px-2.5 py-0.5 rounded-full bg-slate-800 text-[10px] font-mono text-emerald-400 border border-slate-700 font-bold">
-                ● LIVE RECOVERY ACTIVE
-              </span>
-            </div>
+            <span className="font-extrabold text-xl tracking-tight text-white">Recon<span className="text-[#FA5D29]">AI</span></span>
           </div>
 
           <div className="hidden md:flex items-center space-x-8 text-xs font-bold text-slate-300">
