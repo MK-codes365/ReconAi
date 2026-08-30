@@ -185,6 +185,7 @@ export class PersistentStore {
   }
 
   public getCases(status?: string, search?: string): RecoveryCaseRecord[] {
+    this.data = this.loadFromDisk();
     let list = this.data.cases;
     if (status && status !== 'ALL') {
       list = list.filter((c) => c.status === status);
@@ -202,6 +203,7 @@ export class PersistentStore {
   }
 
   public getCaseById(id: string): RecoveryCaseRecord | undefined {
+    this.data = this.loadFromDisk();
     return this.data.cases.find((c) => c.id === id || c.caseNumber === id);
   }
 
@@ -262,6 +264,7 @@ export class PersistentStore {
   }
 
   public getMetrics() {
+    this.data = this.loadFromDisk();
     const totalRecoveryCases = this.data.cases.length;
     const recoveredCases = this.data.cases.filter((c) => c.status === 'RECOVERED').length;
     const activeCases = this.data.cases.filter((c) => c.status === 'ACTION_SCHEDULED' || c.status === 'ACTION_EXECUTING' || c.status === 'PENDING_ACTION' || c.status === 'OPEN').length;
