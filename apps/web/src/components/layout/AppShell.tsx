@@ -81,6 +81,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       items: [
         { href: "/dashboard", label: "Command Center", icon: LayoutDashboard },
         { href: "/recovery", label: "Recovery Cases", icon: Activity },
+        { href: "/checkout", label: "Razorpay Simulator", icon: Zap },
       ],
     },
     {
