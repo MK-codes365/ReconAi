@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   transpilePackages: ['@reconai/shared-types'],
   images: {
     remotePatterns: [
@@ -9,20 +9,28 @@ const nextConfig = {
   },
   async rewrites() {
     const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${apiUrl}/api/:path*`,
-      },
-      {
-        source: '/webhooks/:path*',
-        destination: `${apiUrl}/webhooks/:path*`,
-      },
-      {
-        source: '/health',
-        destination: `${apiUrl}/health`,
-      },
-    ];
+    return {
+      beforeFiles: [],
+      afterFiles: [
+        {
+          source: '/api/auth/:path*',
+          destination: '/api/auth/:path*',
+        },
+        {
+          source: '/api/:path*',
+          destination: `${apiUrl}/api/:path*`,
+        },
+        {
+          source: '/webhooks/:path*',
+          destination: `${apiUrl}/webhooks/:path*`,
+        },
+        {
+          source: '/health',
+          destination: `${apiUrl}/health`,
+        },
+      ],
+      fallback: [],
+    };
   },
 };
 
