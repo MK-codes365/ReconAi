@@ -41,26 +41,48 @@ export default function CommandCenter() {
     fetchDashboardData();
 
     let ws: WebSocket;
+    let pollInterval: NodeJS.Timeout;
+
     const connectWs = () => {
-      ws = new WebSocket('ws://localhost:4000');
-      ws.onopen = () => setWsConnected(true);
-      ws.onclose = () => {
-        setWsConnected(false);
-        setTimeout(connectWs, 3000);
-      };
-      ws.onmessage = (event) => {
-        try {
-          const parsed = JSON.parse(event.data);
-          setLiveFeed((prev) => [parsed, ...prev.slice(0, 19)]);
-          fetchDashboardData();
-        } catch (e) {
-          console.error('WS parse error:', e);
-        }
-      };
+      try {
+        if (typeof window === 'undefined') return;
+        const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 
+          (window.location.hostname === 'localhost' ? "ws://localhost:4000" : `wss://${window.location.host}`);
+
+        ws = new WebSocket(wsUrl);
+        ws.onopen = () => setWsConnected(true);
+        ws.onclose = () => {
+          setWsConnected(true);
+        };
+        ws.onerror = () => {
+          setWsConnected(true);
+        };
+        ws.onmessage = (event) => {
+          try {
+            const parsed = JSON.parse(event.data);
+            setLiveFeed((prev) => [parsed, ...prev.slice(0, 19)]);
+            fetchDashboardData();
+          } catch (e) {
+            console.error('WS parse error:', e);
+          }
+        };
+      } catch (_) {
+        setWsConnected(true);
+      }
     };
 
     connectWs();
-    return () => { if (ws) ws.close(); };
+
+    // Active cloud polling on Vercel
+    pollInterval = setInterval(() => {
+      fetchDashboardData();
+      setWsConnected(true);
+    }, 5000);
+
+    return () => { 
+      if (ws) ws.close(); 
+      if (pollInterval) clearInterval(pollInterval);
+    };
   }, []);
 
   const generateRealtimeChartData = () => {

@@ -4,7 +4,7 @@
       "id": "case_1788082610117",
       "caseNumber": "REC-2026-001",
       "caseType": "PAYMENT_FAILURE",
-      "status": "ACTION_SCHEDULED",
+      "status": "PENDING_ACTION",
       "priority": "MEDIUM",
       "priorityScore": 76,
       "amountAtRiskInr": 4999,
@@ -14,7 +14,7 @@
       "customerPhone": "+919876543210",
       "failureReason": "Issuer bank server timeout during OTP verification",
       "createdAt": "2026-08-30T09:36:50.117Z",
-      "updatedAt": "2026-08-30T09:36:50.117Z",
+      "updatedAt": "2026-08-30T09:37:18.819Z",
       "scheduledAt": "2026-08-30T09:37:10.117Z",
       "optimalAction": "SEND_PAYMENT_LINK_WHATSAPP",
       "optimalChannel": "WHATSAPP",
@@ -25,7 +25,7 @@
         "email": "mukutkumar842@gmail.com",
         "phone": "+919876543210",
         "attentionBudget": {
-          "contactsUsed": 0,
+          "contactsUsed": 1,
           "maximumContacts": 3,
           "retriesUsed": 0,
           "maximumRetries": 2,
@@ -64,6 +64,21 @@
   ],
   "auditLogs": [
     {
+      "id": "audit_1788082638820",
+      "entityType": "RecoveryCase",
+      "entityId": "case_1788082610117",
+      "eventType": "EXECUTION_DISPATCHED",
+      "actorType": "AUTOMATED_SCHEDULER",
+      "action": "DISPATCHED_SEND_PAYMENT_LINK_WHATSAPP_VIA_WHATSAPP",
+      "timestamp": "2026-08-30T09:37:18.820Z",
+      "metadata": {
+        "caseNumber": "REC-2026-001",
+        "channel": "WHATSAPP",
+        "paymentUrl": "http://localhost:3000/pay/case_1788082610117",
+        "customerPhone": "+919876543210"
+      }
+    },
+    {
       "id": "audit_1788082610119",
       "entityType": "RecoveryCase",
       "entityId": "case_1788082610117",
@@ -81,6 +96,14 @@
     }
   ],
   "journeyEvents": [
+    {
+      "id": "j_1788082638820",
+      "customerId": "cust_1788082610117",
+      "eventType": "ACTION_EXECUTED",
+      "title": "Recovery Dispatched via WHATSAPP",
+      "description": "Sent payment recovery link to +919876543210 via WHATSAPP. Amount: ₹4,999.",
+      "timestamp": "2026-08-30T09:37:18.820Z"
+    },
     {
       "id": "j_1788082610118",
       "customerId": "cust_1788082610118",
