@@ -71,17 +71,48 @@ export interface JourneyEventRecord {
   timestamp: string;
 }
 
+export interface UserRecord {
+  id: string;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: 'ADMIN' | 'OPERATOR';
+  isActive: boolean;
+  createdAt: string;
+}
+
 interface StoreData {
   cases: RecoveryCaseRecord[];
   auditLogs: AuditLogRecord[];
   journeyEvents: JourneyEventRecord[];
   notifications: any[];
+  users: UserRecord[];
 }
 
-// Clean production store: starts empty and is populated strictly by real live payment events
+// Clean production store with default seed users
 const INITIAL_CASES: RecoveryCaseRecord[] = [];
 const INITIAL_LOGS: AuditLogRecord[] = [];
 const INITIAL_JOURNEY: JourneyEventRecord[] = [];
+const INITIAL_USERS: UserRecord[] = [
+  {
+    id: 'usr_admin_001',
+    name: 'Lead System Administrator',
+    email: 'admin@reconai.io',
+    passwordHash: 'admin123',
+    role: 'ADMIN',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'usr_operator_001',
+    name: 'Recovery Operations Lead',
+    email: 'operator@reconai.io',
+    passwordHash: 'operator123',
+    role: 'OPERATOR',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+  }
+];
 
 export class PersistentStore {
   private data: StoreData;
@@ -107,6 +138,7 @@ export class PersistentStore {
           auditLogs: Array.isArray(parsed.auditLogs) ? parsed.auditLogs : [],
           journeyEvents: Array.isArray(parsed.journeyEvents) ? parsed.journeyEvents : [],
           notifications: Array.isArray(parsed.notifications) ? parsed.notifications : [],
+          users: Array.isArray(parsed.users) && parsed.users.length > 0 ? parsed.users : INITIAL_USERS,
         };
       }
     } catch (err) {
@@ -118,9 +150,29 @@ export class PersistentStore {
       auditLogs: INITIAL_LOGS,
       journeyEvents: INITIAL_JOURNEY,
       notifications: [],
+      users: INITIAL_USERS,
     };
     this.saveToDisk(fresh);
     return fresh;
+  }
+
+  public getUserByEmail(email: string): UserRecord | undefined {
+    return this.data.users.find((u) => u.email.toLowerCase() === email.toLowerCase().trim());
+  }
+
+  public addUser(user: UserRecord): UserRecord {
+    const existingIdx = this.data.users.findIndex((u) => u.email.toLowerCase() === user.email.toLowerCase().trim());
+    if (existingIdx >= 0) {
+      this.data.users[existingIdx] = user;
+    } else {
+      this.data.users.push(user);
+    }
+    this.saveToDisk();
+    return user;
+  }
+
+  public getUsers(): UserRecord[] {
+    return this.data.users;
   }
 
   private saveToDisk(dataToSave?: StoreData) {
