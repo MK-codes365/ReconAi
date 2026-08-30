@@ -23,6 +23,7 @@ import { recoveryCaseService } from './services/recovery-case.service';
 import { wsService } from './services/websocket.service';
 import { recoveryScheduler } from './services/recovery-scheduler';
 import { persistentStore } from './services/persistent-store';
+import { razorpayIntegrationService } from './integrations/razorpay/razorpay.service';
 import './modules/webhooks/webhook.worker';
 import './modules/ml/ml-prediction.worker';
 import './ai/ai.worker';
@@ -81,6 +82,24 @@ app.post('/api/v1/webhooks/razorpay', WebhookController.handleWebhook);
 app.post('/api/admin/webhooks/:id/replay', WebhookController.replayWebhook);
 app.post('/api/dev/events/payment-failed', DevEventsController.triggerPaymentFailed);
 app.post('/api/dev/events/payment-captured', DevEventsController.triggerPaymentCaptured);
+
+// Live Razorpay REST API Direct Sync Endpoint
+app.get('/api/razorpay/sync', async (req, res) => {
+  try {
+    const result = await razorpayIntegrationService.syncRealPayments(persistentStore, wsService);
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+app.post('/api/razorpay/sync', async (req, res) => {
+  try {
+    const result = await razorpayIntegrationService.syncRealPayments(persistentStore, wsService);
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // Phase 4 Core Revenue Recovery Engine API Routes
 app.get('/api/recovery/cases', RecoveryController.listCases);

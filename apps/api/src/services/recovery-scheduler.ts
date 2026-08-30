@@ -2,6 +2,7 @@ import { persistentStore } from './persistent-store';
 import { wsService } from './websocket.service';
 import { notificationService } from '../modules/notifications/notification.service';
 import { whatsappService } from '../integrations/whatsapp/whatsapp.service';
+import { razorpayIntegrationService } from '../integrations/razorpay/razorpay.service';
 
 export class RecoveryScheduler {
   private timer: NodeJS.Timeout | null = null;
@@ -9,7 +10,7 @@ export class RecoveryScheduler {
 
   public start(intervalMs: number = 10000) {
     if (this.timer) return;
-    console.log('⏰ RecoveryScheduler: Background Automated Recovery Worker Started (10s interval)');
+    console.log('⏰ RecoveryScheduler: Background Automated Recovery & Razorpay Sync Worker Started (10s interval)');
     
     this.timer = setInterval(() => {
       this.tick();
@@ -28,6 +29,9 @@ export class RecoveryScheduler {
     this.isRunning = true;
 
     try {
+      // 0. Auto-sync latest live transactions directly from Razorpay Cloud API
+      await razorpayIntegrationService.syncRealPayments(persistentStore, wsService);
+
       const now = Date.now();
       const allCases = persistentStore.getCases();
 

@@ -92,13 +92,29 @@ export class RazorpayClient {
         short_url: `https://rzp.io/i/test_${synthId.slice(-6)}`,
         reference_id: params.referenceId,
         description: params.description,
-        customer: {
-          name: params.customerName,
-          email: params.customerEmail,
-          contact: params.customerPhone || '+919876543210',
-        },
         created_at: Math.floor(Date.now() / 1000),
       };
     }
   }
+
+  async fetchAllPayments(count: number = 20): Promise<any[]> {
+    try {
+      const res = await this.instance.payments.all({ count });
+      return res.items || [];
+    } catch (error) {
+      console.error('RazorpayClient.fetchAllPayments error:', error);
+      return [];
+    }
+  }
+
+  async fetchAllPaymentLinks(count: number = 20): Promise<any[]> {
+    try {
+      const res = await this.instance.paymentLink.all({ count });
+      return res.payment_links || [];
+    } catch (error) {
+      console.error('RazorpayClient.fetchAllPaymentLinks error:', error);
+      return [];
+    }
+  }
 }
+
