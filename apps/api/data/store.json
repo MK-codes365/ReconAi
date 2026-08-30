@@ -1,5 +1,54 @@
 {
-  "cases": [],
+  "cases": [
+    {
+      "id": "case_rec_9824",
+      "caseNumber": "CASE-2026-9824",
+      "caseType": "CHECKOUT_DROP",
+      "status": "ACTION_EXECUTING",
+      "priority": "HIGH",
+      "priorityScore": 0.88,
+      "amountAtRiskInr": 4999,
+      "recoveredAmountInr": 0,
+      "customerName": "Priya Sharma",
+      "customerEmail": "priya.sharma@enterprise.io",
+      "customerPhone": "+919876543210",
+      "failureReason": "BANK_COMMUNICATION_ERROR (Issuer OTP Gateway Timeout)",
+      "createdAt": "2026-08-30T08:24:00.000Z",
+      "updatedAt": "2026-08-30T08:24:00.000Z",
+      "scheduledAt": "2026-08-30T08:24:10.000Z",
+      "optimalAction": "WHATSAPP_RECOVERY_LINK",
+      "optimalChannel": "WHATSAPP",
+      "paymentLinkUrl": "http://localhost:3000/pay/case_rec_9824",
+      "customer": {
+        "id": "cust_9824",
+        "name": "Priya Sharma",
+        "email": "priya.sharma@enterprise.io",
+        "phone": "+919876543210",
+        "attentionBudget": {
+          "contactsUsed": 1,
+          "maximumContacts": 3,
+          "retriesUsed": 0,
+          "maximumRetries": 2,
+          "cooldownHours": 6
+        }
+      },
+      "candidates": [
+        {
+          "id": "cand_1",
+          "rank": 1,
+          "actionType": "SEND_WHATSAPP_LINK",
+          "channel": "WHATSAPP",
+          "paymentMethod": "UPI_INTENT",
+          "recoveryProbability": 0.78,
+          "frictionScore": 0.15,
+          "netRecoveryValueMinorUnit": "389922",
+          "scheduledTime": "2026-08-30T08:24:10.000Z",
+          "selected": true,
+          "reason": "Customer on mobile network with high historical WhatsApp open rate."
+        }
+      ]
+    }
+  ],
   "auditLogs": [],
   "journeyEvents": [],
   "notifications": [],
