@@ -237,7 +237,12 @@ app.get('/api/audit', async (req, res) => {
 });
 
 const PORT = config.port;
-server.listen(PORT, () => {
-  console.log(`🚀 ReconAI Backend API running on port ${PORT}`);
-  recoveryScheduler.start(10000);
-});
+if (!process.env.VERCEL) {
+  server.listen(PORT, () => {
+    console.log(`🚀 ReconAI Backend API running on port ${PORT}`);
+    recoveryScheduler.start(10000);
+  });
+}
+
+export default app;
+module.exports = app;
