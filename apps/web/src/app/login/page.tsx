@@ -355,42 +355,8 @@ export default function LoginPage() {
           </motion.form>
         )}
 
-        {/* 1-Click Demo Quick Logins for Hackathon Judges */}
-        <div className="pt-2 border-t border-slate-800/80 space-y-2">
-          <div className="text-[10px] font-mono uppercase text-slate-500 tracking-wider text-center">Instant 1-Click Role Logins</div>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => {
-                setTab('LOGIN');
-                setEmail('admin@reconai.io');
-                setPassword('admin123');
-                handleLogin(undefined, 'admin@reconai.io', 'admin123');
-              }}
-              disabled={loading || !!success}
-              className="py-2 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold flex items-center justify-center space-x-1.5 transition shadow-sm"
-            >
-              <Crown className="w-3.5 h-3.5 text-[#FA5D29]" />
-              <span>Admin Demo</span>
-            </button>
-
-            <button
-              onClick={() => {
-                setTab('LOGIN');
-                setEmail('operator@reconai.io');
-                setPassword('operator123');
-                handleLogin(undefined, 'operator@reconai.io', 'operator123');
-              }}
-              disabled={loading || !!success}
-              className="py-2 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold flex items-center justify-center space-x-1.5 transition shadow-sm"
-            >
-              <UserCheck className="w-3.5 h-3.5 text-blue-400" />
-              <span>Operator Demo</span>
-            </button>
-          </div>
-        </div>
-
         {/* Security Trust Indicators */}
-        <div className="flex items-center justify-center gap-3 text-[10px] text-slate-500 pt-1 font-mono">
+        <div className="flex items-center justify-center gap-3 text-[10px] text-slate-500 pt-3 border-t border-slate-800/80 font-mono">
           <div className="flex items-center space-x-1">
             <Lock className="w-3 h-3 text-emerald-400" />
             <span>256-bit JWT Auth</span>

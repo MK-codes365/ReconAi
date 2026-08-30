@@ -21,6 +21,15 @@
       "role": "OPERATOR",
       "isActive": true,
       "createdAt": "2026-08-30T07:54:18.355Z"
+    },
+    {
+      "id": "usr_operator_34494",
+      "name": "Mukut Kumar",
+      "email": "mukutkumar8488@gmail.com",
+      "passwordHash": "Activa@8954",
+      "role": "OPERATOR",
+      "isActive": true,
+      "createdAt": "2026-08-30T07:58:54.494Z"
     }
   ]
 }
