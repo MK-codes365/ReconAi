@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     const amountInr = (paymentEntity.amount || 300000) / 100;
     const customerName = paymentEntity.notes?.customer_name || paymentEntity.email?.split('@')[0] || 'Mukut Kumar';
-    const customerEmail = paymentEntity.email || 'customer@example.com';
+    const customerEmail = paymentEntity.email || 'mukutkumar842@gmail.com';
     const customerPhone = paymentEntity.contact || '+919876543210';
     const failureReason = paymentEntity.error_description || paymentEntity.error_reason || 'Bank network timeout during OTP';
 
@@ -41,13 +41,33 @@ export async function POST(req: NextRequest) {
     const store = getStoreData();
 
     if (eventType === 'payment.captured' || eventType === 'order.paid') {
-      const activeCase = store.cases.find((c: any) => c.status !== 'RECOVERED') || store.cases[0];
+      const activeCase = store.cases.find((c: any) => c.status !== 'RECOVERED');
       if (activeCase) {
         activeCase.status = 'RECOVERED';
         activeCase.recoveredAmountInr = amountInr;
         activeCase.updatedAt = new Date().toISOString();
-        saveStoreData(store);
+      } else {
+        const caseNumber = `REC-2026-${(store.cases.length + 1).toString().padStart(3, '0')}`;
+        store.cases.unshift({
+          id: `case_${Date.now()}`,
+          caseNumber,
+          caseType: 'PAYMENT_CAPTURE',
+          status: 'RECOVERED',
+          priority: amountInr >= 25000 ? 'HIGH' : 'MEDIUM',
+          priorityScore: 88,
+          amountAtRiskInr: amountInr,
+          recoveredAmountInr: amountInr,
+          customerName,
+          customerEmail,
+          customerPhone,
+          failureReason: 'Razorpay Direct Payment Capture',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          optimalAction: 'WHATSAPP_RECOVERY',
+          optimalChannel: 'WHATSAPP',
+        });
       }
+      saveStoreData(store);
     } else {
       const caseNumber = `REC-2026-${(store.cases.length + 1).toString().padStart(3, '0')}`;
       const caseId = `case_${Date.now()}`;
