@@ -14,9 +14,9 @@ export default function LoginPage() {
   const router = useRouter();
   const [tab, setTab] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
 
-  // Sign In State
-  const [email, setEmail] = useState('admin@reconai.io');
-  const [password, setPassword] = useState('admin123');
+  // Sign In State (Clean Empty Fields)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   // Register State
   const [regName, setRegName] = useState('');
@@ -219,7 +219,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-3.5 py-2.5 bg-[#060a14] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-[#FA5D29]/80 font-mono text-xs transition"
-                  placeholder="admin@reconai.io"
+                  placeholder="Enter your registered email"
                 />
               </div>
             </div>
