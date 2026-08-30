@@ -327,6 +327,7 @@ export class PersistentStore {
       auditLogs: [],
       journeyEvents: [],
       notifications: [],
+      users: INITIAL_USERS,
     };
     this.saveToDisk();
   }

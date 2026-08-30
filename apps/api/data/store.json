@@ -2,5 +2,16 @@
   "cases": [],
   "auditLogs": [],
   "journeyEvents": [],
-  "notifications": []
+  "notifications": [],
+  "users": [
+    {
+      "id": "usr_admin_95507",
+      "name": "Mukut Kumar",
+      "email": "mukutkumar842@gmail.com",
+      "passwordHash": "password123",
+      "role": "ADMIN",
+      "isActive": true,
+      "createdAt": "2026-08-30T07:49:55.507Z"
+    }
+  ]
 }
