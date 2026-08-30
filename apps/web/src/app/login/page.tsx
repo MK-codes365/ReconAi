@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Lock, Mail, ArrowRight, CheckCircle2, UserCheck, ShieldAlert,
-  User, UserPlus, LogIn, Crown
+  User, UserPlus, LogIn, Crown, Eye, EyeOff
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -15,10 +15,13 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const [regName, setRegName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
+  const [showRegPassword, setShowRegPassword] = useState(false);
   const [regRole, setRegRole] = useState<'ADMIN' | 'OPERATOR'>('OPERATOR');
 
   const [loading, setLoading] = useState(false);
@@ -29,6 +32,13 @@ export default function LoginPage() {
     const token = localStorage.getItem('reconai_token');
     if (token) {
       router.push('/dashboard');
+      return;
+    }
+
+    const savedEmail = localStorage.getItem('reconai_saved_email');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
     }
   }, [router]);
 
@@ -55,7 +65,16 @@ export default function LoginPage() {
 
       localStorage.setItem('reconai_token', data.token);
       localStorage.setItem('reconai_user', JSON.stringify(data.user));
-      document.cookie = `reconai_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
+      
+      if (rememberMe) {
+        localStorage.setItem('reconai_saved_email', targetEmail);
+        localStorage.setItem('reconai_remember', 'true');
+      } else {
+        localStorage.removeItem('reconai_saved_email');
+        localStorage.removeItem('reconai_remember');
+      }
+
+      document.cookie = `reconai_token=${data.token}; path=/; max-age=2592000; SameSite=Lax`;
       
       setSuccess(`Signed in as ${data.user.role}! Redirecting...`);
       setTimeout(() => {
@@ -99,7 +118,9 @@ export default function LoginPage() {
 
       localStorage.setItem('reconai_token', data.token);
       localStorage.setItem('reconai_user', JSON.stringify(data.user));
-      document.cookie = `reconai_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
+      localStorage.setItem('reconai_saved_email', regEmail);
+      localStorage.setItem('reconai_remember', 'true');
+      document.cookie = `reconai_token=${data.token}; path=/; max-age=2592000; SameSite=Lax`;
 
       setSuccess(`Account created as ${data.user.role}! Redirecting to Command Center...`);
       setTimeout(() => {
@@ -219,14 +240,34 @@ export default function LoginPage() {
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#060a14] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-[#FA5D29]/80 font-mono text-xs transition"
+                  className="w-full pl-10 pr-10 py-2.5 bg-[#060a14] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-[#FA5D29]/80 font-mono text-xs transition"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 transition p-1"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-0.5">
+              <label className="flex items-center space-x-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-700 bg-[#060a14] text-[#FA5D29] accent-[#FA5D29] focus:ring-0 cursor-pointer"
+                />
+                <span className="text-[11px] text-slate-300 font-medium">Remember me on this device</span>
+              </label>
             </div>
 
             <button
@@ -288,13 +329,21 @@ export default function LoginPage() {
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="password"
+                  type={showRegPassword ? 'text' : 'password'}
                   required
                   value={regPassword}
                   onChange={(e) => setRegPassword(e.target.value)}
-                  className="w-full pl-10 pr-3.5 py-2.5 bg-[#060a14] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-[#FA5D29]/80 font-mono text-xs transition"
+                  className="w-full pl-10 pr-10 py-2.5 bg-[#060a14] border border-slate-800 rounded-xl text-white focus:outline-none focus:border-[#FA5D29]/80 font-mono text-xs transition"
                   placeholder="Create secure password"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowRegPassword(!showRegPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 transition p-1"
+                  tabIndex={-1}
+                >
+                  {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
