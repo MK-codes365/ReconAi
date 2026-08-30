@@ -89,7 +89,6 @@ interface StoreData {
   users: UserRecord[];
 }
 
-// Clean production store with default seed users
 const INITIAL_CASES: RecoveryCaseRecord[] = [];
 const INITIAL_LOGS: AuditLogRecord[] = [];
 const INITIAL_JOURNEY: JourneyEventRecord[] = [];

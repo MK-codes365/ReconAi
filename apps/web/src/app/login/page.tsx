@@ -5,20 +5,17 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ShieldCheck, Lock, Mail, ArrowRight, Zap, Shield, 
-  Sparkles, CheckCircle2, KeyRound, UserCheck, ShieldAlert,
-  User, UserPlus, LogIn, Crown, SlidersHorizontal
+  Lock, Mail, ArrowRight, CheckCircle2, UserCheck, ShieldAlert,
+  User, UserPlus, LogIn, Crown
 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
   const [tab, setTab] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
 
-  // Sign In State (Clean Empty Fields)
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  // Register State
   const [regName, setRegName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
@@ -28,7 +25,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // If already logged in, redirect to dashboard
   useEffect(() => {
     const token = localStorage.getItem('reconai_token');
     if (token) {
@@ -57,7 +53,6 @@ export default function LoginPage() {
         throw new Error(data.error || 'Authentication failed');
       }
 
-      // Save real session credentials
       localStorage.setItem('reconai_token', data.token);
       localStorage.setItem('reconai_user', JSON.stringify(data.user));
       document.cookie = `reconai_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
@@ -80,7 +75,7 @@ export default function LoginPage() {
     setSuccess('');
 
     if (!regName.trim() || !regEmail.trim() || !regPassword.trim()) {
-      setError('Please fill in all registration fields');
+      setError('Please fill in all fields');
       setLoading(false);
       return;
     }
@@ -125,10 +120,8 @@ export default function LoginPage() {
         transition={{ duration: 0.3 }}
         className="w-full max-w-md bg-[#0b101d]/95 border border-slate-800/90 rounded-3xl p-7 space-y-5 shadow-2xl backdrop-blur-md relative overflow-hidden"
       >
-        {/* Glow Accent */}
         <div className="absolute -top-10 -right-10 w-36 h-36 bg-[#FA5D29]/15 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Header */}
         <div className="text-center space-y-2">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FA5D29]/20 to-orange-600/10 border border-[#FA5D29]/40 flex items-center justify-center mx-auto shadow-xl shadow-[#FA5D29]/20 p-2">
             <Image 
@@ -142,11 +135,10 @@ export default function LoginPage() {
           </div>
           <div>
             <h1 className="text-2xl font-extrabold text-white tracking-tight">ReconAI Portal</h1>
-            <p className="text-xs text-slate-400">Autonomous Revenue Recovery Command Center</p>
+            <p className="text-xs text-slate-400">Revenue Recovery Command Center</p>
           </div>
         </div>
 
-        {/* Tab Selector: Sign In vs Register */}
         <div className="grid grid-cols-2 p-1 bg-[#060a14] rounded-2xl border border-slate-800 text-xs font-semibold">
           <button
             type="button"
@@ -174,7 +166,6 @@ export default function LoginPage() {
           </button>
         </div>
 
-        {/* Error / Success Notifications */}
         <AnimatePresence>
           {error && (
             <motion.div 
@@ -201,7 +192,6 @@ export default function LoginPage() {
           )}
         </AnimatePresence>
 
-        {/* Tab 1: Sign In Form */}
         {tab === 'LOGIN' && (
           <motion.form 
             initial={{ opacity: 0 }} 
@@ -256,7 +246,6 @@ export default function LoginPage() {
           </motion.form>
         )}
 
-        {/* Tab 2: Real Register Form */}
         {tab === 'REGISTER' && (
           <motion.form 
             initial={{ opacity: 0 }} 
@@ -309,7 +298,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Role Selection Radio Group */}
             <div className="space-y-1">
               <label className="text-slate-300 font-medium font-mono uppercase text-[10px] tracking-wider">Assigned Role</label>
               <div className="grid grid-cols-2 gap-2">
@@ -322,7 +310,7 @@ export default function LoginPage() {
                   }`}
                 >
                   <UserCheck className="w-4 h-4 text-blue-400" />
-                  <span className="text-[11px]">🛡️ Operator</span>
+                  <span className="text-[11px]">Operator</span>
                   <span className="text-[9px] text-slate-500">Triage & Actions</span>
                 </div>
 
@@ -335,8 +323,8 @@ export default function LoginPage() {
                   }`}
                 >
                   <Crown className="w-4 h-4 text-amber-400" />
-                  <span className="text-[11px]">👑 Admin</span>
-                  <span className="text-[9px] text-slate-500">Full System Control</span>
+                  <span className="text-[11px]">Admin</span>
+                  <span className="text-[9px] text-slate-500">System Control</span>
                 </div>
               </div>
             </div>
@@ -355,7 +343,6 @@ export default function LoginPage() {
           </motion.form>
         )}
 
-        {/* Security Trust Indicators */}
         <div className="flex items-center justify-center gap-3 text-[10px] text-slate-500 pt-3 border-t border-slate-800/80 font-mono">
           <div className="flex items-center space-x-1">
             <Lock className="w-3 h-3 text-emerald-400" />

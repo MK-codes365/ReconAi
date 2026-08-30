@@ -15,7 +15,6 @@ function getUsersFromFile(): any[] {
     }
   } catch (_) {}
   
-  // Default Seed Accounts
   return [
     {
       id: 'usr_admin_001',
@@ -56,7 +55,6 @@ export async function POST(req: NextRequest) {
       }, { status: 401 });
     }
 
-    // Verify Password
     if (user.passwordHash !== password && password !== 'admin123' && password !== 'operator123') {
       return NextResponse.json({ error: 'Invalid password. Please check and try again.' }, { status: 401 });
     }

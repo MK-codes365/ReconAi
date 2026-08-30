@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
     const cleanEmail = email.trim().toLowerCase();
     const cleanRole = role === 'ADMIN' ? 'ADMIN' : 'OPERATOR';
 
-    // Check if user already exists
     const users = getUsersFromFile();
     const existing = users.find((u: any) => u.email.toLowerCase() === cleanEmail);
     if (existing) {
@@ -55,7 +54,7 @@ export async function POST(req: NextRequest) {
       id: `usr_${cleanRole.toLowerCase()}_${Date.now().toString().slice(-5)}`,
       name: name.trim(),
       email: cleanEmail,
-      passwordHash: password, // in production hash with bcrypt
+      passwordHash: password,
       role: cleanRole,
       isActive: true,
       createdAt: new Date().toISOString(),

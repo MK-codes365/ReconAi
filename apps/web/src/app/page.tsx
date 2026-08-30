@@ -15,12 +15,11 @@ import {
 } from 'lucide-react';
 
 export default function ReconAiLandingPage() {
-  const [monthlyRevenue, setMonthlyRevenue] = useState(5000000); // 50 Lakhs
-  const [failureRate, setFailureRate] = useState(25); // 25% failure rate
+  const [monthlyRevenue, setMonthlyRevenue] = useState(5000000);
+  const [failureRate, setFailureRate] = useState(25);
 
-  // Financial Calculations
   const revenueAtRisk = monthlyRevenue * (failureRate / 100);
-  const recoveredMonthly = revenueAtRisk * 0.382; // 38.2% recovery lift
+  const recoveredMonthly = revenueAtRisk * 0.382;
   const recoveredAnnual = recoveredMonthly * 12;
 
   const marqueeData = [
@@ -34,9 +33,8 @@ export default function ReconAiLandingPage() {
   ];
 
   return (
-    <main className="bg-[#0B0B0F] min-h-screen text-white selection:bg-[#FA5D29] selection:text-white relative overflow-hidden font-sans">
-      {/* Floating Top Navbar */}
-      <header className="sticky top-0 z-50 bg-[#0a0f1d]/90 backdrop-blur-md border-b border-slate-800/80 px-6 py-4 shadow-2xl">
+    <main className="min-h-screen bg-[#060a14] text-slate-100 overflow-x-hidden selection:bg-[#FA5D29]/30">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#060a14]/80 border-b border-slate-800/80 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Image 
@@ -74,7 +72,6 @@ export default function ReconAiLandingPage() {
         </div>
       </header>
 
-      {/* Hero Header with Cursor Following Pointer Effect */}
       <div className="pt-14 pb-4 flex justify-center text-center">
         <FollowerPointerCard
           title={
@@ -102,7 +99,6 @@ export default function ReconAiLandingPage() {
         </FollowerPointerCard>
       </div>
 
-      {/* Streaming Marquee Ticker */}
       <div className="my-6 py-3.5 bg-[#0a0f1d] border-y border-slate-800/80">
         <Marquee pauseOnHover speed={45}>
           {marqueeData.map((info, index) => (
@@ -113,7 +109,6 @@ export default function ReconAiLandingPage() {
         </Marquee>
       </div>
 
-      {/* 3D Macbook Scroll Showcase Section with Interactive ReconAI Console Inside Screen */}
       <section id="console" className="relative overflow-hidden bg-[#060a14] w-full pt-4">
         <MacbookScroll
           title={
@@ -131,9 +126,7 @@ export default function ReconAiLandingPage() {
           }
           showGradient={false}
         >
-          {/* Custom Clean ReconAI Screen Content Filling Laptop Display */}
           <div className="w-full h-full bg-[#080d1a] flex flex-col font-sans select-none overflow-y-auto">
-            {/* macOS Topbar */}
             <div className="px-3 py-2 bg-[#050811] border-b border-slate-800/90 flex items-center justify-between shrink-0">
               <div className="flex items-center space-x-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />

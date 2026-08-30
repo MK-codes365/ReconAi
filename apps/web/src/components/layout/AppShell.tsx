@@ -18,7 +18,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [lastSync, setLastSync] = useState<string>("Just now");
   const [currentUser, setCurrentUser] = useState<{ name: string; email: string; role: string } | null>(null);
 
-  // Authentication Guard: Protect all internal operations routes
   useEffect(() => {
     const isAuthExempt = pathname === '/' || pathname === '/landing' || pathname === '/login' || pathname?.startsWith('/pay');
     const token = typeof window !== 'undefined' ? localStorage.getItem('reconai_token') : null;
@@ -71,7 +70,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Customer-facing checkout and landing pages bypass the admin shell entirely
   const isStandalone = pathname === '/' || pathname === '/landing' || pathname?.startsWith('/pay');
   if (isStandalone) {
     return <>{children}</>;
