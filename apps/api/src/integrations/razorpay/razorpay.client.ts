@@ -92,6 +92,11 @@ export class RazorpayClient {
         short_url: `https://rzp.io/i/test_${synthId.slice(-6)}`,
         reference_id: params.referenceId,
         description: params.description,
+        customer: {
+          name: params.customerName || 'Customer',
+          email: params.customerEmail || 'support@reconai.dev',
+          contact: params.customerPhone || '+919876543210',
+        },
         created_at: Math.floor(Date.now() / 1000),
       };
     }

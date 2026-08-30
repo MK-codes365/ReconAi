@@ -31,7 +31,7 @@ import './decision-engine/decision-engine.worker';
 import './policy/policy-evaluation.worker';
 import './execution/execution-engine.worker';
 
-const app = express();
+export const app = express();
 const server = http.createServer(app);
 
 wsService.init(server);
