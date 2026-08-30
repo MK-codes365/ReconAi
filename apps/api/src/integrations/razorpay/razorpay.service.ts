@@ -8,9 +8,14 @@ import {
 
 export class RazorpayService {
   private client: RazorpayClient;
+  public syncSinceTimestamp: number = Math.floor(Date.now() / 1000);
 
   constructor() {
     this.client = new RazorpayClient();
+  }
+
+  public resetSyncTimestamp() {
+    this.syncSinceTimestamp = Math.floor(Date.now() / 1000);
   }
 
   /**
@@ -54,6 +59,11 @@ export class RazorpayService {
       let failures = 0;
 
       for (const pay of items) {
+        // Skip historical payments created before the reset timestamp
+        if (pay.created_at && pay.created_at < this.syncSinceTimestamp) {
+          continue;
+        }
+
         const amountInr = Math.round((pay.amount || 0) / 100);
         const customerName = pay.notes?.customer_name || pay.notes?.name || pay.email?.split('@')[0] || 'Mukut Kumar';
         const customerEmail = pay.email || 'mukutkumar842@gmail.com';
