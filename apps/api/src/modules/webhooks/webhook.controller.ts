@@ -31,13 +31,14 @@ export class WebhookController {
       return res.status(400).json({ error: 'Invalid JSON payload' });
     }
 
-    const eventId = payload.event_id || payload.payload?.payment?.entity?.id || `evt_${Date.now()}`;
-    const eventType = payload.event || 'payment.failed';
-    const paymentEntity = payload.payload?.payment?.entity || {};
-    const amountInr = (paymentEntity.amount || 500000) / 100;
-    const customerName = paymentEntity.notes?.customer_name || paymentEntity.email?.split('@')[0] || 'Customer';
-    const customerEmail = paymentEntity.email || 'customer@example.com';
-    const failureReason = paymentEntity.error_description || paymentEntity.error_reason || 'temporary_gateway_issue';
+    const eventId = payload.event_id || payload.payload?.payment?.entity?.id || payload.id || `evt_${Date.now()}`;
+    const eventType = payload.event || (payload.status === 'captured' ? 'payment.captured' : 'payment.failed');
+    const paymentEntity = payload.payload?.payment?.entity || payload.payment?.entity || payload.payload?.payment_link?.entity || payload.payment_link?.entity || payload.entity || payload || {};
+    const amountInr = Math.round((paymentEntity.amount || payload.amount || 500000) / 100);
+    const customerName = paymentEntity.notes?.customer_name || paymentEntity.notes?.name || paymentEntity.email?.split('@')[0] || payload.customer_name || 'Mukut Kumar';
+    const customerEmail = paymentEntity.email || payload.email || 'mukutkumar842@gmail.com';
+    const customerPhone = paymentEntity.contact || paymentEntity.phone || payload.phone || '+917535947485';
+    const failureReason = paymentEntity.error_description || paymentEntity.error_reason || paymentEntity.error_code || 'Payment declined by bank gateway';
 
     console.log(`\n📡 [WEBHOOK RECEIVED] ${eventType} for ${customerName} (₹${amountInr.toLocaleString('en-IN')})`);
 

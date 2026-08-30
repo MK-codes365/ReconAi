@@ -76,6 +76,8 @@ app.get('/api/customers/:id/notifications', async (req, res) => {
 
 // Phase 3 Real-time Razorpay Webhook Ingestion
 app.post('/webhooks/razorpay', WebhookController.handleWebhook);
+app.post('/api/webhooks/razorpay', WebhookController.handleWebhook);
+app.post('/api/v1/webhooks/razorpay', WebhookController.handleWebhook);
 app.post('/api/admin/webhooks/:id/replay', WebhookController.replayWebhook);
 app.post('/api/dev/events/payment-failed', DevEventsController.triggerPaymentFailed);
 app.post('/api/dev/events/payment-captured', DevEventsController.triggerPaymentCaptured);
