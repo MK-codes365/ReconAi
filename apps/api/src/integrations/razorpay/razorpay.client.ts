@@ -1,4 +1,4 @@
-const Razorpay = require('razorpay');
+import Razorpay from 'razorpay';
 import { config } from '@reconai/config';
 import { 
   CreateOrderParams, CreatePaymentLinkParams, 
@@ -6,7 +6,7 @@ import {
 } from './razorpay.types';
 
 export class RazorpayClient {
-  private instance: Razorpay;
+  private instance: any;
 
   constructor() {
     this.instance = new Razorpay({

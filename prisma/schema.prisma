@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -313,15 +314,17 @@ model RecoveryCase {
   createdAt                      DateTime        @default(now())
   updatedAt                      DateTime        @updatedAt
 
-  candidates      RecoveryCandidate[]
-  actions         RecoveryAction[]
-  outcomes        RecoveryOutcome[]
-  aiPredictions   AIPrediction[]
-  mlPredictions   MLPrediction[]
-  policyDecisions PolicyDecision[]
-  workflowJobs    WorkflowJob[]
-  notifications   Notification[]
-  decisions       RecoveryDecision[]
+  candidates        RecoveryCandidate[]
+  actions           RecoveryAction[]
+  outcomes          RecoveryOutcome[]
+  aiPredictions     AIPrediction[]
+  mlPredictions     MLPrediction[]
+  policyDecisions   PolicyDecision[]
+  workflowJobs      WorkflowJob[]
+  notifications     Notification[]
+  decisions         RecoveryDecision[]
+  policyEvaluations PolicyEvaluation[]
+  reviewTasks       RecoveryReviewTask[]
 
   @@index([status])
   @@index([customerId])
@@ -554,6 +557,43 @@ model PolicyDecision {
   evaluatedByUser  User?                @relation("EvaluatedByUser", fields: [evaluatedById], references: [id], onDelete: SetNull)
 
   @@index([recoveryCaseId])
+}
+
+model PolicyEvaluation {
+  id              String       @id @default(uuid())
+  recoveryCaseId  String
+  recoveryCase    RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  decisionId      String?
+  policyVersion   String       @default("1.0.0")
+  status          String // APPROVED, BLOCKED, REQUIRES_HUMAN_REVIEW
+  rules           Json // Array of evaluated rule results
+  blockingReasons Json // Array of blocking reasons
+  warnings        Json // Array of warning messages
+  evaluatedAt     DateTime     @default(now())
+  expiresAt       DateTime
+  correlationId   String?
+
+  @@index([recoveryCaseId])
+  @@index([status])
+}
+
+model RecoveryReviewTask {
+  id                String       @id @default(uuid())
+  recoveryCaseId    String
+  recoveryCase      RecoveryCase @relation(fields: [recoveryCaseId], references: [id], onDelete: Cascade)
+  decisionId        String?
+  recommendedAction String
+  amountMinorUnit   BigInt
+  riskFlags         Json
+  violations        Json
+  reason            String       @db.Text
+  status            String       @default("PENDING") // PENDING, APPROVED, REJECTED
+  assignedToId      String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([recoveryCaseId])
+  @@index([status])
 }
 
 // ==========================================

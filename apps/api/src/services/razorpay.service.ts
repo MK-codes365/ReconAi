@@ -1,9 +1,9 @@
 import crypto from 'crypto';
-const Razorpay = require('razorpay');
+import Razorpay from 'razorpay';
 import { config } from '@reconai/config';
 
 export class RazorpayService {
-  private instance: Razorpay;
+  private instance: any;
 
   constructor() {
     this.instance = new Razorpay({
@@ -12,9 +12,6 @@ export class RazorpayService {
     });
   }
 
-  /**
-   * Verify Razorpay Webhook HMAC-SHA256 Signature
-   */
   verifyWebhookSignature(payload: string, signature: string, secret: string = config.razorpay.webhookSecret): boolean {
     if (!signature) return false;
     try {
@@ -30,9 +27,6 @@ export class RazorpayService {
     }
   }
 
-  /**
-   * Create an Order in Razorpay
-   */
   async createOrder(amountInInr: number, receipt: string, notes: Record<string, any> = {}): Promise<any> {
     try {
       const amountInPaisa = Math.round(amountInInr * 100);
@@ -44,7 +38,6 @@ export class RazorpayService {
       });
     } catch (error) {
       console.error('Razorpay createOrder error:', error);
-      // Return synthetic order in fallback test mode
       return {
         id: `order_synth_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
         entity: 'order',
@@ -57,9 +50,6 @@ export class RazorpayService {
     }
   }
 
-  /**
-   * Fetch payment details by payment ID
-   */
   async fetchPayment(paymentId: string): Promise<any> {
     try {
       return await this.instance.payments.fetch(paymentId);
@@ -69,9 +59,6 @@ export class RazorpayService {
     }
   }
 
-  /**
-   * Create Payment Link for Recovery
-   */
   async createPaymentLink(params: {
     amountInInr: number;
     description: string;
@@ -109,7 +96,6 @@ export class RazorpayService {
       };
     } catch (error) {
       console.error('Razorpay createPaymentLink error:', error);
-      // Fallback for offline/mock test credentials
       const synthId = `plink_synth_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
       return {
         id: synthId,

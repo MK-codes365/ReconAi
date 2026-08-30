@@ -8,19 +8,22 @@
     "packages/*"
   ],
   "scripts": {
+    "start": "concurrently -k -p \"[{name}]\" -n \"WEB,API,ML\" -c \"cyan,magenta,yellow\" \"npm --prefix apps/web run dev\" \"npm --prefix apps/api run start:dev\" \"cd apps/ml-service && python -m uvicorn app.main:app --reload --port 8000\"",
+    "dev": "npm start",
     "build": "npm run build --workspaces",
     "dev:api": "npm --prefix apps/api run start:dev",
     "dev:web": "npm --prefix apps/web run dev",
-    "dev:ml": "cd apps/ml-service && python -m uvicorn main:app --reload --port 8000",
+    "dev:ml": "cd apps/ml-service && python -m uvicorn app.main:app --reload --port 8000",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
     "db:seed": "npx ts-node prisma/seed.ts",
     "test": "npm run test --workspaces"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
+    "@types/node": "^20.11.0",
+    "concurrently": "^8.2.2",
     "prisma": "^5.10.0",
     "ts-node": "^10.9.2",
-    "@types/node": "^20.11.0"
+    "typescript": "^5.3.3"
   }
 }

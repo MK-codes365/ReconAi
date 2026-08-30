@@ -1,6 +1,7 @@
 import os
 import joblib
 import json
+from app.models.classifier import PureLogisticRegressionModel
 
 MODEL_PATH = "artifacts/recovery_model.joblib"
 METADATA_PATH = "artifacts/model_metadata.json"
@@ -17,9 +18,15 @@ class ModelLoader:
             self.metadata = train_and_evaluate()
             self.model = joblib.load(MODEL_PATH)
         else:
-            self.model = joblib.load(MODEL_PATH)
-            with open(METADATA_PATH, "r") as f:
-                self.metadata = json.load(f)
+            try:
+                self.model = joblib.load(MODEL_PATH)
+                with open(METADATA_PATH, "r") as f:
+                    self.metadata = json.load(f)
+            except Exception as e:
+                print("Could not load model, retraining...", e)
+                from app.training.train import train_and_evaluate
+                self.metadata = train_and_evaluate()
+                self.model = joblib.load(MODEL_PATH)
 
     def is_ready(self) -> bool:
         return self.model is not None

@@ -1,65 +1,59 @@
-# ReconAI — System Architecture & Design Specification
+# ReconAI — System Architecture & Integration Blueprint
 
-## Overview
-ReconAI is a production-grade, real-time AI Revenue Recovery platform engineered for the Razorpay ecosystem. It detects payment failures and checkout abandonments in real time, computes customer payment journeys, predicts recovery probabilities using machine learning, evaluates candidate interventions via AI reasoning, ranks candidate actions to select the **Next Best Recovery Moment**, validates actions through a deterministic Policy Engine, and executes recovery workflows via Razorpay Test Mode APIs.
-
----
-
-## Core Architectural Workflow
+```text
+                               RAZORPAY TEST MODE
+                                       │
+                                       │ Payment Failure / Capture Webhooks
+                                       ▼
+                            POST /webhooks/razorpay
+                                       │
+                            HMAC-SHA256 Signature Verification
+                                       │
+                            Idempotency Check ([provider, eventId])
+                                       │
+                            Persist WebhookEvent (status: RECEIVED)
+                                       │
+                            BullMQ Queue ('webhook-events')
+                                       │
+                            Webhook Worker (Atomic Transaction)
+    ┌──────────────────────────────────┼──────────────────────────────────┐
+    ▼                                  ▼                                  ▼
+Payment Status                Customer Journey                 Recovery Opportunity Detector
+FAILED / CAPTURED              Reconstruction                   RecoveryCase OPEN / RECOVERED
+    │                                  │                                  │
+    └──────────────────────────────────┴──────────────────────────────────┘
+                                       │
+                            BullMQ Queue ('ml-prediction')
+                                       │
+                            FastAPI ML Service (POST /predict/recovery)
+                                       │
+                            MLPrediction Persisted (Recovery Probability)
+                                       │
+                            BullMQ Queue ('ai-analysis')
+                                       │
+                            OpenAI LLM Reasoning Engine (Structured Zod Output)
+                                       │
+                            AIPrediction Persisted (Root Cause Diagnosis)
+                                       │
+                            BullMQ Queue ('decision-engine')
+                                       │
+                            Decision Engine (Candidate Generation & Net Recovery Value)
+                                       │
+                            Next Best Recovery Moment Selected
+                                       │
+                            BullMQ Queue ('policy-evaluation')
+                                       │
+                            Deterministic Policy Engine (22+ Rules)
+                                       │
+                          ┌────────────┴────────────┐
+                          ▼                         ▼
+                      APPROVED                  BLOCKED / REVIEW
+                          │                         │
+            BullMQ ('recovery-execution')     RecoveryReviewTask
+                          │
+              Mandatory Policy Recheck
+                          │
+            Razorpay Test Mode / Channels
+                          │
+                   Audit Log & WS
 ```
-[ Razorpay Event / Webhook ]
-            │
-            ▼
-┌─────────────────────────┐
-│     Webhook Gateway     │ ── (HMAC Signature Verification & Idempotency)
-└─────────────────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│  PostgreSQL Event Store │
-└─────────────────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│      BullMQ Worker      │
-└─────────────────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│     ML Predictor        │ ── (FastAPI + Scikit-Learn/GradientBoosting)
-└─────────────────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│   LLM Diagnosis Engine  │ ── (OpenAI Structured JSON / Reasoning Engine)
-└─────────────────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│ Next Best Recovery Moment│ ── (Expected Recovery Value - Friction - Costs)
-└─────────────────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│     Policy Engine       │ ── (FAIL-CLOSED Deterministic Safety Rules)
-└─────────────────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│     Execution Engine    │ ── (Pre-Execution Re-Check -> Razorpay APIs)
-└─────────────────────────┘
-            │
-            ▼
-┌─────────────────────────┐
-│ WebSocket SSE Dashboard │ ── (Next.js Command Center)
-└─────────────────────────┘
-```
-
----
-
-## Principles & Guardrails
-1. **AI recommends → Policy Engine validates → Workflow executes → Payment provider responds → ReconAI observes → Outcome is recorded → ML learns from outcomes.**
-2. **The LLM NEVER directly executes money-moving actions.** All financial actions must pass through deterministic policy validation.
-3. **Fail-Closed Security**: If any policy service or security component fails, the system defaults to `BLOCKED` execution.
-4. **Customer Attention Budget**: Every customer has configurable bounds (`maximumContacts`, `maximumRetries`, `cooldownHours`).
-5. **Mandatory Pre-Execution Policy Re-check**: Right before executing an action on Razorpay, policy rules are evaluated again to protect against race conditions.

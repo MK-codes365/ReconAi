@@ -1,9 +1,35 @@
+import os
+import sys
 import time
+from pathlib import Path
+from typing import List, Optional
+
+# Ensure sys.path includes apps/ml-service and apps/ml-service/app
+current_dir = Path(__file__).resolve().parent
+ml_root_dir = current_dir.parent
+sys.path.insert(0, str(ml_root_dir))
+sys.path.insert(0, str(current_dir))
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from app.models.loader import model_loader
-from app.models.predictor import predict_recovery_probability
-from app.schemas.health import HealthResponse
+
+try:
+    from app.models.loader import model_loader
+    from app.models.predictor import predict_recovery_probability
+except ImportError:
+    from models.loader import model_loader
+    from models.predictor import predict_recovery_probability
+
+try:
+    from app.schemas.health import HealthResponse
+except ImportError:
+    try:
+        from schemas.health import HealthResponse
+    except ImportError:
+        class HealthResponse(BaseModel):
+            status: str
+            service: str
+            version: str
 
 app = FastAPI(
     title="ReconAI ML Prediction Service",
@@ -38,7 +64,7 @@ class PredictRecoveryResponse(BaseModel):
     model_version: str
     feature_version: str
     latency_ms: float
-    top_features: list[FeatureImportanceItem]
+    top_features: List[FeatureImportanceItem]
 
 @app.get("/health", response_model=HealthResponse)
 def health_check():
@@ -55,6 +81,7 @@ def get_model_info():
     return model_loader.metadata
 
 @app.post("/predict/recovery", response_model=PredictRecoveryResponse)
+@app.post("/predict", response_model=PredictRecoveryResponse)
 def predict_recovery(req: PredictRecoveryRequest):
     try:
         data = req.features.model_dump()
@@ -65,4 +92,5 @@ def predict_recovery(req: PredictRecoveryRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)

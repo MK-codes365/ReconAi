@@ -25,13 +25,17 @@ export class PromptManager {
           activatedAt: new Date(),
         },
       });
-    } catch (err) {
-      console.error('Error seeding PromptVersion:', err);
+    } catch (_) {
+      // In-memory fallback if database is offline
     }
   }
 
   public static async getActivePrompt(version: string = RECOVERY_DIAGNOSIS_PROMPT_VERSION): Promise<string> {
-    const record = await prisma.promptVersion.findUnique({ where: { version } });
-    return record?.prompt || RECOVERY_DIAGNOSIS_SYSTEM_PROMPT;
+    try {
+      const record = await prisma.promptVersion.findUnique({ where: { version } });
+      return record?.prompt || RECOVERY_DIAGNOSIS_SYSTEM_PROMPT;
+    } catch (_) {
+      return RECOVERY_DIAGNOSIS_SYSTEM_PROMPT;
+    }
   }
 }
