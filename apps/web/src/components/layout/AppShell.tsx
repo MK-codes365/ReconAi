@@ -3,18 +3,38 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   ShieldCheck, LayoutDashboard, Activity, FileText, BarChart3, 
   ChevronLeft, ChevronRight, Zap, RefreshCw, Cpu, ShieldAlert, 
-  Sparkles, Radio, Database, Server
+  Sparkles, Radio, Database, Server, LogOut, UserCheck, Shield
 } from "lucide-react";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
   const [lastSync, setLastSync] = useState<string>("Just now");
+  const [currentUser, setCurrentUser] = useState<{ name: string; email: string; role: string } | null>(null);
+
+  // Authentication Guard: Protect all internal operations routes
+  useEffect(() => {
+    const isAuthExempt = pathname === '/' || pathname === '/landing' || pathname === '/login' || pathname?.startsWith('/pay');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('reconai_token') : null;
+    const userStr = typeof window !== 'undefined' ? localStorage.getItem('reconai_user') : null;
+
+    if (!isAuthExempt && !token) {
+      router.push('/login');
+      return;
+    }
+
+    if (userStr) {
+      try {
+        setCurrentUser(JSON.parse(userStr));
+      } catch (_) {}
+    }
+  }, [pathname, router]);
 
   useEffect(() => {
     let ws: WebSocket;
@@ -138,10 +158,38 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </div>
 
-          <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-slate-900 to-slate-850 text-slate-200 rounded-xl text-[11px] font-semibold border border-slate-750/70 shadow-sm">
-            <div className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
-            <span>OPERATOR</span>
-          </div>
+          {/* User Profile & Role Status */}
+          {currentUser ? (
+            <div className="flex items-center space-x-2">
+              <div className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border shadow-sm ${
+                currentUser.role === 'ADMIN'
+                  ? 'bg-amber-950/40 border-amber-800/50 text-amber-300'
+                  : 'bg-blue-950/40 border-blue-800/50 text-blue-300'
+              }`}>
+                <span>{currentUser.role === 'ADMIN' ? '👑 ADMIN' : '🛡️ OPERATOR'}</span>
+                <span className="text-slate-400 font-mono text-[10px] hidden md:inline">({currentUser.email})</span>
+              </div>
+              <button
+                onClick={() => {
+                  localStorage.removeItem('reconai_token');
+                  localStorage.removeItem('reconai_user');
+                  document.cookie = 'reconai_token=; path=/; max-age=0;';
+                  router.push('/login');
+                }}
+                title="Sign Out"
+                className="p-2 rounded-xl bg-slate-900/80 hover:bg-red-950/60 border border-slate-800 hover:border-red-800/60 text-slate-400 hover:text-red-300 transition"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="px-3.5 py-1.5 rounded-xl bg-[#FA5D29]/10 hover:bg-[#FA5D29]/20 border border-[#FA5D29]/30 text-[#FA5D29] text-xs font-bold transition flex items-center space-x-1.5"
+            >
+              <span>Sign In</span>
+            </Link>
+          )}
         </div>
       </header>
 

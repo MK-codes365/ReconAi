@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { 
   ShieldCheck, Lock, Mail, ArrowRight, Zap, Shield, 
-  Sparkles, CheckCircle2, KeyRound, UserCheck
+  Sparkles, CheckCircle2, KeyRound, UserCheck, ShieldAlert
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -15,6 +15,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  // If already logged in, redirect to dashboard
+  useEffect(() => {
+    const token = localStorage.getItem('reconai_token');
+    if (token) {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const handleLogin = async (e?: React.FormEvent, customEmail?: string, customPass?: string) => {
     if (e) e.preventDefault();
@@ -36,11 +45,17 @@ export default function LoginPage() {
         throw new Error(data.error || 'Authentication failed');
       }
 
+      // Save real session credentials
       localStorage.setItem('reconai_token', data.token);
       localStorage.setItem('reconai_user', JSON.stringify(data.user));
-      router.push('/dashboard');
+      document.cookie = `reconai_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
+      
+      setSuccess(true);
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Unable to connect to authentication service');
     } finally {
       setLoading(false);
     }
@@ -76,8 +91,16 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="p-3.5 bg-red-950/60 border border-red-800/80 rounded-xl text-xs text-red-300 font-mono text-center">
-            {error}
+          <div className="p-3.5 bg-red-950/60 border border-red-800/80 rounded-xl text-xs text-red-300 font-mono text-center flex items-center justify-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-red-400 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="p-3.5 bg-emerald-950/60 border border-emerald-800/80 rounded-xl text-xs text-emerald-300 font-mono text-center flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>Authenticated! Redirecting to Command Center...</span>
           </div>
         )}
 
@@ -115,7 +138,7 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || success}
             className="w-full py-3.5 bg-gradient-to-r from-[#FA5D29] to-orange-600 hover:from-orange-500 hover:to-orange-600 text-white font-bold rounded-xl flex items-center justify-center space-x-2 shadow-xl shadow-[#FA5D29]/30 hover:shadow-[#FA5D29]/50 transition-all disabled:opacity-50 text-sm group"
           >
             {loading ? (
@@ -131,24 +154,32 @@ export default function LoginPage() {
 
         {/* 1-Click Demo Quick Logins for Hackathon Judges */}
         <div className="pt-3 border-t border-slate-800/80 space-y-2">
-          <div className="text-[10px] font-mono uppercase text-slate-500 tracking-wider text-center">1-Click Hackathon Quick Logins</div>
+          <div className="text-[10px] font-mono uppercase text-slate-500 tracking-wider text-center">1-Click Role Logins</div>
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => handleLogin(undefined, 'admin@reconai.io', 'admin123')}
-              disabled={loading}
+              onClick={() => {
+                setEmail('admin@reconai.io');
+                setPassword('admin123');
+                handleLogin(undefined, 'admin@reconai.io', 'admin123');
+              }}
+              disabled={loading || success}
               className="py-2.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold flex items-center justify-center space-x-1.5 transition shadow-sm"
             >
               <KeyRound className="w-3.5 h-3.5 text-[#FA5D29]" />
-              <span>Admin Role</span>
+              <span>👑 Admin Role</span>
             </button>
 
             <button
-              onClick={() => handleLogin(undefined, 'operator@reconai.io', 'operator123')}
-              disabled={loading}
+              onClick={() => {
+                setEmail('operator@reconai.io');
+                setPassword('operator123');
+                handleLogin(undefined, 'operator@reconai.io', 'operator123');
+              }}
+              disabled={loading || success}
               className="py-2.5 px-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white text-[11px] font-semibold flex items-center justify-center space-x-1.5 transition shadow-sm"
             >
               <UserCheck className="w-3.5 h-3.5 text-blue-400" />
-              <span>Operator Role</span>
+              <span>🛡️ Operator Role</span>
             </button>
           </div>
         </div>
