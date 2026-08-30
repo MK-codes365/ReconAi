@@ -1,12 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Marquee from 'react-fast-marquee';
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
-import { FollowerPointerCard } from '@/components/ui/following-pointer';
-import { MacbookScroll } from '@/components/ui/macbook-scroll';
+
+const Marquee = dynamic(() => import('react-fast-marquee'), { ssr: false });
+const FollowerPointerCard = dynamic(() => import('@/components/ui/following-pointer').then(m => m.FollowerPointerCard), { ssr: false });
+const MacbookScroll = dynamic(() => import('@/components/ui/macbook-scroll').then(m => m.MacbookScroll), { ssr: false });
+
 import { 
   ShieldCheck, Zap, ArrowRight, Activity, Smartphone,
   CheckCircle2, IndianRupee, Sparkles, Lock, TrendingUp,
@@ -15,8 +18,13 @@ import {
 } from 'lucide-react';
 
 export default function ReconAiLandingPage() {
+  const [mounted, setMounted] = useState(false);
   const [monthlyRevenue, setMonthlyRevenue] = useState(5000000);
   const [failureRate, setFailureRate] = useState(25);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const revenueAtRisk = monthlyRevenue * (failureRate / 100);
   const recoveredMonthly = revenueAtRisk * 0.382;
