@@ -18,9 +18,6 @@ export default function CommandCenter() {
   const [wsConnected, setWsConnected] = useState(false);
   const [liveFeed, setLiveFeed] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [simulatorOpen, setSimulatorOpen] = useState(false);
-  const [simulating, setSimulating] = useState(false);
-  const [simulationSuccess, setSimulationSuccess] = useState<string | null>(null);
 
   const fetchDashboardData = async () => {
     try {
@@ -65,60 +62,6 @@ export default function CommandCenter() {
     connectWs();
     return () => { if (ws) ws.close(); };
   }, []);
-
-  const triggerSimulation = async (type: 'GATEWAY_TIMEOUT' | 'INSUFFICIENT_FUNDS' | 'HARD_DECLINE' | 'PAYMENT_CAPTURED') => {
-    setSimulating(true);
-    setSimulationSuccess(null);
-    try {
-      if (type === 'PAYMENT_CAPTURED') {
-        const res = await fetch('/api/dev/events/payment-captured', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: 45000 }),
-        });
-        if (res.ok) {
-          setSimulationSuccess('Successfully injected simulated Razorpay payment capture!');
-        }
-      } else {
-        const payloadMap = {
-          GATEWAY_TIMEOUT: {
-            customerName: 'Kavita Iyer (Nexus Global)',
-            customerEmail: 'kavita@nexusglobal.in',
-            amount: 45000,
-            failureReason: 'bank_gateway_timeout_504',
-          },
-          INSUFFICIENT_FUNDS: {
-            customerName: 'Rohan Deshmukh',
-            customerEmail: 'rohan.d@deshmukh.co',
-            amount: 18500,
-            failureReason: 'customer_insufficient_balance',
-          },
-          HARD_DECLINE: {
-            customerName: 'Ananya Roy',
-            customerEmail: 'ananya@roycorp.org',
-            amount: 12000,
-            failureReason: 'card_expired_hard_decline',
-          },
-        };
-
-        const res = await fetch('/api/dev/events/payment-failed', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payloadMap[type]),
-        });
-        if (res.ok) {
-          setSimulationSuccess(`Successfully injected simulated ${type} webhook event!`);
-        }
-      }
-
-      await fetchDashboardData();
-      setTimeout(() => setSimulationSuccess(null), 4000);
-    } catch (err: any) {
-      console.error('Simulation error:', err);
-    } finally {
-      setSimulating(false);
-    }
-  };
 
   const generateRealtimeChartData = () => {
     if (!cases || cases.length === 0) {
@@ -218,14 +161,6 @@ export default function CommandCenter() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => setSimulatorOpen(true)}
-            className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 hover:from-amber-500/30 hover:to-orange-500/30 border border-amber-500/40 text-amber-300 font-semibold text-xs transition-all duration-200 shadow-md group"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-            <span>Simulate Failure Webhook</span>
-          </button>
-
-          <button
             onClick={fetchDashboardData}
             disabled={refreshing}
             className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition-all duration-200 text-xs font-medium shadow-md group disabled:opacity-50"
@@ -243,107 +178,6 @@ export default function CommandCenter() {
           </Link>
         </div>
       </div>
-
-      {/* Simulator Modal */}
-      <AnimatePresence>
-        {simulatorOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-            <motion.div 
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-[#0e1424] border border-slate-700/80 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 relative"
-            >
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center space-x-2">
-                  <div className="p-2 rounded-xl bg-[#FA5D29]/15 text-[#FA5D29] border border-[#FA5D29]/30">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white text-base">Razorpay Webhook Event Simulator</h3>
-                    <p className="text-xs text-slate-400">Inject real-time synthetic failure & recovery webhooks</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => setSimulatorOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {simulationSuccess && (
-                <div className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-700/80 text-emerald-300 text-xs flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>{simulationSuccess}</span>
-                </div>
-              )}
-
-              <div className="space-y-2.5">
-                <button
-                  onClick={() => triggerSimulation('GATEWAY_TIMEOUT')}
-                  disabled={simulating}
-                  className="w-full text-left p-3.5 rounded-xl bg-[#080d18] hover:bg-slate-800/80 border border-slate-800 hover:border-[#FA5D29]/50 transition group space-y-1"
-                >
-                  <div className="flex items-center justify-between text-xs font-bold text-white">
-                    <span className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-red-400"></span>
-                      1. Bank 504 Gateway Timeout (₹45,000)
-                    </span>
-                    <span className="text-[#FA5D29] text-[11px] font-mono group-hover:translate-x-0.5 transition-transform">Trigger ➔</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 pl-4">Simulates high-value transaction gateway failure triggering Gemini LLM diagnosis & WhatsApp recovery.</p>
-                </button>
-
-                <button
-                  onClick={() => triggerSimulation('INSUFFICIENT_FUNDS')}
-                  disabled={simulating}
-                  className="w-full text-left p-3.5 rounded-xl bg-[#080d18] hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 transition group space-y-1"
-                >
-                  <div className="flex items-center justify-between text-xs font-bold text-white">
-                    <span className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                      2. Customer Insufficient Funds (₹18,500)
-                    </span>
-                    <span className="text-amber-400 text-[11px] font-mono group-hover:translate-x-0.5 transition-transform">Trigger ➔</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 pl-4">Simulates customer balance decline scheduling Next Best Moment during evening salary credit window.</p>
-                </button>
-
-                <button
-                  onClick={() => triggerSimulation('HARD_DECLINE')}
-                  disabled={simulating}
-                  className="w-full text-left p-3.5 rounded-xl bg-[#080d18] hover:bg-slate-800/80 border border-slate-800 hover:border-red-500/50 transition group space-y-1"
-                >
-                  <div className="flex items-center justify-between text-xs font-bold text-white">
-                    <span className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-red-500"></span>
-                      3. Expired Card Hard Decline (₹12,000)
-                    </span>
-                    <span className="text-red-400 text-[11px] font-mono group-hover:translate-x-0.5 transition-transform">Trigger ➔</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 pl-4">Simulates permanent decline requiring policy fail-closed check and update-card payment link.</p>
-                </button>
-
-                <button
-                  onClick={() => triggerSimulation('PAYMENT_CAPTURED')}
-                  disabled={simulating}
-                  className="w-full text-left p-3.5 rounded-xl bg-[#080d18] hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 transition group space-y-1"
-                >
-                  <div className="flex items-center justify-between text-xs font-bold text-white">
-                    <span className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                      4. Simulated Payment Recovered (₹45,000)
-                    </span>
-                    <span className="text-emerald-400 text-[11px] font-mono group-hover:translate-x-0.5 transition-transform">Trigger ➔</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 pl-4">Broadcasts payment.captured webhook, moving case to RECOVERED and updating conversion charts.</p>
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* Real-time KPI Analytics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4.5">
