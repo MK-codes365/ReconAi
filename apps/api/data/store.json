@@ -1,7 +1,95 @@
 {
-  "cases": [],
-  "auditLogs": [],
-  "journeyEvents": [],
+  "cases": [
+    {
+      "id": "case_1788082610117",
+      "caseNumber": "REC-2026-001",
+      "caseType": "PAYMENT_FAILURE",
+      "status": "ACTION_SCHEDULED",
+      "priority": "MEDIUM",
+      "priorityScore": 76,
+      "amountAtRiskInr": 4999,
+      "recoveredAmountInr": 0,
+      "customerName": "Mukut Kumar",
+      "customerEmail": "mukutkumar842@gmail.com",
+      "customerPhone": "+919876543210",
+      "failureReason": "Issuer bank server timeout during OTP verification",
+      "createdAt": "2026-08-30T09:36:50.117Z",
+      "updatedAt": "2026-08-30T09:36:50.117Z",
+      "scheduledAt": "2026-08-30T09:37:10.117Z",
+      "optimalAction": "SEND_PAYMENT_LINK_WHATSAPP",
+      "optimalChannel": "WHATSAPP",
+      "paymentLinkUrl": "/pay/case_1788082610117",
+      "customer": {
+        "id": "cust_1788082610117",
+        "name": "Mukut Kumar",
+        "email": "mukutkumar842@gmail.com",
+        "phone": "+919876543210",
+        "attentionBudget": {
+          "contactsUsed": 0,
+          "maximumContacts": 3,
+          "retriesUsed": 0,
+          "maximumRetries": 2,
+          "cooldownHours": 6
+        }
+      },
+      "candidates": [
+        {
+          "id": "cand_1788082610117_1",
+          "rank": 1,
+          "actionType": "SEND_PAYMENT_LINK_WHATSAPP",
+          "channel": "WHATSAPP",
+          "paymentMethod": "UPI_COLLECT",
+          "recoveryProbability": 0.88,
+          "frictionScore": 1.2,
+          "netRecoveryValueMinorUnit": "439912",
+          "scheduledTime": "2026-08-30T09:37:10.117Z",
+          "selected": true,
+          "reason": "Optimal historical recovery window (WhatsApp channel). Predicted probability 88%."
+        },
+        {
+          "id": "cand_1788082610117_2",
+          "rank": 2,
+          "actionType": "AUTO_RETRY_TRANSACTION",
+          "channel": "BANK_SWITCH",
+          "paymentMethod": "NETBANKING_HDFC",
+          "recoveryProbability": 0.72,
+          "frictionScore": 1,
+          "netRecoveryValueMinorUnit": "359928",
+          "scheduledTime": "2026-08-30T10:36:50.117Z",
+          "selected": false,
+          "reason": "Secondary fallback route via alternate banking switch."
+        }
+      ]
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "audit_1788082610119",
+      "entityType": "RecoveryCase",
+      "entityId": "case_1788082610117",
+      "eventType": "WEBHOOK_PROCESSED",
+      "actorType": "RAZORPAY_WEBHOOK",
+      "action": "CREATED_RECOVERY_CASE",
+      "timestamp": "2026-08-30T09:36:50.119Z",
+      "metadata": {
+        "caseNumber": "REC-2026-001",
+        "amountAtRiskInr": 4999,
+        "failureReason": "Issuer bank server timeout during OTP verification",
+        "optimalAction": "SEND_PAYMENT_LINK_WHATSAPP",
+        "scheduledAt": "2026-08-30T09:37:10.117Z"
+      }
+    }
+  ],
+  "journeyEvents": [
+    {
+      "id": "j_1788082610118",
+      "customerId": "cust_1788082610118",
+      "eventType": "PAYMENT_FAILED",
+      "title": "Razorpay Payment Authorization Failed",
+      "description": "Gateway error: Issuer bank server timeout during OTP verification. Amount: ₹4,999",
+      "timestamp": "2026-08-30T09:36:50.118Z"
+    }
+  ],
   "notifications": [],
   "users": [
     {
